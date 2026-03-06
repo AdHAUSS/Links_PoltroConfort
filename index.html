@@ -304,27 +304,25 @@
     <!-- Simple Animation Script -->
     <script>
      
-function isSamsungBrowser() {
-  return /SamsungBrowser/i.test(navigator.userAgent);
-}
-
 document.addEventListener("DOMContentLoaded", function () {
 
 function isSamsungBrowser() {
   return /SamsungBrowser/i.test(navigator.userAgent);
 }
 
-function isDarkMode() {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
+function samsungDarkModeAtivo() {
 
-/* Detecta dark mode forçado do Samsung Internet */
-function samsungForcedDark() {
   const bg = window.getComputedStyle(document.body).backgroundColor;
-  return bg === "rgb(0, 0, 0)" || bg === "rgb(18, 18, 18)";
+
+  const coresPermitidas = [
+    "rgb(111, 143, 175)",
+    "rgba(111, 143, 175, 1)"
+  ];
+
+  return !coresPermitidas.includes(bg);
 }
 
-if (isSamsungBrowser() && (isDarkMode() || samsungForcedDark())) {
+if (isSamsungBrowser() && samsungDarkModeAtivo()) {
 
   const banner = document.createElement("div");
 
@@ -332,21 +330,20 @@ if (isSamsungBrowser() && (isDarkMode() || samsungForcedDark())) {
   banner.style.bottom = "20px";
   banner.style.left = "50%";
   banner.style.transform = "translateX(-50%)";
-  banner.style.background = "rgba(0,0,0,0.85)";
-  banner.style.backdropFilter = "blur(10px)";
+  banner.style.background = "rgba(0,0,0,0.9)";
   banner.style.padding = "14px 18px";
-  banner.style.borderRadius = "16px";
+  banner.style.borderRadius = "14px";
   banner.style.color = "white";
   banner.style.fontSize = "14px";
   banner.style.display = "flex";
   banner.style.alignItems = "center";
-  banner.style.gap = "14px";
+  banner.style.gap = "12px";
   banner.style.boxShadow = "0 10px 30px rgba(0,0,0,0.4)";
   banner.style.zIndex = "9999";
 
   banner.innerHTML = `
-  <span>Melhor visualização disponível no Chrome</span>
-  <button id="openChromeBtn" style="
+  <span>Para visualizar corretamente, abra no Chrome</span>
+  <button id="openChrome" style="
     background:#4285F4;
     border:none;
     padding:8px 14px;
@@ -359,19 +356,16 @@ if (isSamsungBrowser() && (isDarkMode() || samsungForcedDark())) {
 
   document.body.appendChild(banner);
 
-  document
-    .getElementById("openChromeBtn")
-    .addEventListener("click", function () {
+  document.getElementById("openChrome").addEventListener("click", function () {
 
-      const chromeIntent =
-      "intent://" +
-      window.location.href.replace(/^https?:\/\//, "") +
-      "#Intent;scheme=https;package=com.android.chrome;end";
+    const chromeIntent =
+    "intent://" +
+    window.location.href.replace(/^https?:\/\//, "") +
+    "#Intent;scheme=https;package=com.android.chrome;end";
 
-      window.location.href = chromeIntent;
+    window.location.href = chromeIntent;
 
-    });
-
+  });
 }
 
 });
