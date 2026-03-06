@@ -316,47 +316,43 @@ function isSamsungBrowser() {
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  const main = document.querySelector("main");
-
-  if (main) {
-    main.style.opacity = "0";
-    main.style.transform = "translateY(20px)";
-    main.style.transition = "opacity 0.8s ease, transform 0.8s ease";
-
-    setTimeout(function () {
-      main.style.opacity = "1";
-      main.style.transform = "translateY(0)";
-    }, 100);
+   function isSamsungBrowser() {
+    return navigator.userAgent.includes("SamsungBrowser");
   }
 
-  if (isSamsungBrowser()) {
+  function isDarkMode() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
 
-    const banner = document.getElementById("browser-warning");
+  if (isSamsungBrowser() && isDarkMode()) {
 
-    if (banner) {
-      banner.style.display = "block";
-    }
+    const button = document.createElement("button");
+    button.innerText = "Abrir no Chrome para melhor visualização";
 
-    const url = window.location.href;
+    button.style.position = "fixed";
+    button.style.bottom = "20px";
+    button.style.left = "50%";
+    button.style.transform = "translateX(-50%)";
+    button.style.padding = "12px 20px";
+    button.style.background = "#111";
+    button.style.color = "#fff";
+    button.style.border = "none";
+    button.style.borderRadius = "25px";
+    button.style.fontSize = "14px";
+    button.style.zIndex = "9999";
 
-    const chromeIntent =
+    document.body.appendChild(button);
+
+    button.addEventListener("click", function () {
+
+      const chromeIntent =
       "intent://" +
-      url.replace(/^https?:\/\//, "") +
+      window.location.href.replace(/^https?:\/\//, "") +
       "#Intent;scheme=https;package=com.android.chrome;end";
 
-    const button = document.querySelector("#browser-warning button");
-
-    if (button) {
-    button.addEventListener("click", function () {
- const chromeIntent =
-    "intent://" +
-    window.location.href.replace(/^https?:\/\//, "") +
-    "#Intent;scheme=https;package=com.android.chrome;end";
-
-  window.open(chromeIntent, "_self");
+      window.location.href = chromeIntent;
 
     });
-  }
 
 }
 
