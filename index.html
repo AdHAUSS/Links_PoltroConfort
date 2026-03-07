@@ -188,23 +188,33 @@
 }
 
 /* --- NOVA ESTRATÉGIA: ANULAÇÃO DE INVERSÃO --- */
+/* --- BLOCO FINAL: CORREÇÃO "ESPELHO" PARA SAMSUNG DARK --- */
 
-/* Alvo: A div que contém o degradiente da borda e o brilho */
-html.samsung-fix .gold-border-container div[class*="bg-gradient"],
+/* 1. Inverte a Borda e o Glow (Truque para o Samsung não deixar vermelho) */
+html.samsung-fix .gold-border-container .relative,
 html.samsung-fix .gold-border-glow {
-    /* O Samsung inverte as cores. Nós invertemos de volta. 
-       Isso cria um efeito 'espelho' que anula o vermelho. */
     filter: invert(100%) hue-rotate(180deg) !important;
     -webkit-filter: invert(100%) hue-rotate(180deg) !important;
-    
-    /* Forçamos o navegador a não tentar 'ajudar' nas cores aqui */
     forced-color-adjust: none !important;
 }
 
-/* Ajuste do fundo para não ficar 'preto puro' no Samsung */
+/* 2. O PULO DO GATO: Inverte a imagem de volta para a cor original */
+/* Como o container acima está invertido, invertemos a logo denovo para anular */
+html.samsung-fix .gold-border-container img {
+    filter: invert(100%) hue-rotate(180deg) !important;
+    -webkit-filter: invert(100%) hue-rotate(180deg) !important;
+}
+
+/* 3. Ajustes de Fundo e Texto permanecem iguais */
 html.samsung-fix body {
     background-color: #6F8FAF !important;
     background-image: radial-gradient(circle at top,#8FAECC 0%,#6F8FAF 45%,#5f7f9e 100%) !important;
+}
+
+html.samsung-fix h1, 
+html.samsung-fix h2, 
+html.samsung-fix p {
+    color: #ffffff !important;
 }
 
 /* Garante que o brilho original continue funcionando nos outros browsers */
@@ -363,6 +373,7 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 </body>
 </html>
+
 
 
 
