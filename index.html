@@ -326,91 +326,55 @@ transform:translate(-50%,0);
     <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-function isSamsungBrowser(){
+function isSamsungBrowser() {
   return /SamsungBrowser/i.test(navigator.userAgent);
 }
 
-function samsungDarkMode(){
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-function alreadyTried(){
-  return sessionStorage.getItem("chromeRedirectTried");
-}
-
-function markTried(){
-  sessionStorage.setItem("chromeRedirectTried","1");
-}
-
-if(isSamsungBrowser() && samsungDarkMode() && !alreadyTried()){
-
-  markTried();
-
-  const currentUrl = window.location.href;
-
-  const chromeIntent =
-    "intent://" +
-    currentUrl.replace(/^https?:\/\//, "") +
-    "#Intent;scheme=https;package=com.android.chrome;end";
-
-  setTimeout(function(){
-    window.location.href = chromeIntent;
-  },400);
-
-  setTimeout(showFallbackBanner,2000);
-
-}
-
-function showFallbackBanner(){
-
-  if(document.getElementById("chromeBanner")) return;
+if (isSamsungBrowser()) {
 
   const banner = document.createElement("div");
 
-  banner.id="chromeBanner";
+  banner.style.position = "fixed";
+  banner.style.bottom = "25px";
+  banner.style.left = "50%";
+  banner.style.transform = "translateX(-50%)";
+  banner.style.background = "linear-gradient(135deg,#111,#000)";
+  banner.style.padding = "16px 22px";
+  banner.style.borderRadius = "16px";
+  banner.style.color = "white";
+  banner.style.fontSize = "14px";
+  banner.style.display = "flex";
+  banner.style.alignItems = "center";
+  banner.style.gap = "16px";
+  banner.style.boxShadow = "0 15px 40px rgba(0,0,0,0.5)";
+  banner.style.zIndex = "9999";
+  banner.style.fontFamily = "Arial";
 
-  banner.style.position="fixed";
-  banner.style.bottom="20px";
-  banner.style.left="50%";
-  banner.style.transform="translateX(-50%)";
-  banner.style.background="linear-gradient(135deg,#1e1e1e,#000)";
-  banner.style.padding="16px 20px";
-  banner.style.borderRadius="16px";
-  banner.style.color="white";
-  banner.style.display="flex";
-  banner.style.alignItems="center";
-  banner.style.gap="14px";
-  banner.style.boxShadow="0 15px 40px rgba(0,0,0,0.5)";
-  banner.style.zIndex="9999";
-  banner.style.fontFamily="Arial";
-
-  banner.innerHTML=`
-
-  <div style="font-size:14px;line-height:1.4">
+  banner.innerHTML = `
+  <div style="line-height:1.4">
   Para visualizar corretamente,<br>
   abra no <strong>Chrome</strong>
   </div>
 
-  <button id="openChromeBtn"
+  <button id="openChrome"
   style="
   background:linear-gradient(135deg,#4facfe,#00f2fe);
   border:none;
   color:white;
-  padding:10px 16px;
+  padding:10px 18px;
   border-radius:10px;
   font-weight:bold;
   font-size:14px;
   cursor:pointer;
-  box-shadow:0 5px 15px rgba(0,0,0,0.3);
+  box-shadow:0 6px 18px rgba(0,0,0,0.35);
   ">
   Abrir
   </button>
-
   `;
 
   document.body.appendChild(banner);
 
-  document.getElementById("openChromeBtn").addEventListener("click",function(){
+  document.getElementById("openChrome").addEventListener("click", function () {
 
     const chromeIntent =
       "intent://" +
