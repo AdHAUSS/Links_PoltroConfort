@@ -187,23 +187,22 @@
   cursor: pointer;
 }
 
-/* 1. Força o fundo e anula gradientes nativos do Tailwind no Samsung Dark */
-html.samsung-fix body {
-    background: #0f172a !important; 
-    background-image: none !important;
-}
-
-/* 2. O PULO DO GATO: Remove o gradiente inline da borda da foto que o Samsung inverte */
-html.samsung-fix .gold-border-container div[class*="bg-gradient"] {
-    background: #D4AF37 !important; /* Cor sólida de Ouro Metálico (não inverte) */
-    background-image: none !important;
-}
-
-/* 3. Brilho externo (Glow) mais escuro para não virar mancha vermelha */
 html.samsung-fix .gold-border-glow {
-    background: #996515 !important; /* Bronze escuro */
-    opacity: 0.2 !important;
-    filter: blur(8px) !important;
+    /* Em vez de gradiente, usamos uma cor sólida de 'ouro velho' */
+    /* O Samsung não inverte cores sólidas menos saturadas */
+    background: #b8860b !important; 
+    filter: blur(6px) !important;
+    opacity: 0.3 !important;
+}
+
+html.samsung-fix .gold-border-container div[class*="bg-gradient"] {
+    background: #b8860b !important; /* Remove o gradiente inline da borda */
+    background-image: none !important;
+}
+
+html.samsung-fix body {
+    /* Mantém o seu azul original, mas força para o Samsung não escurecer demais */
+    background: #6F8FAF !important; 
 }
 
 /* 4. Garante que os títulos não sofram mutação de cor */
@@ -374,4 +373,5 @@ html.samsung-fix .neomorph-card {
 </script>
 </body>
 </html>
+
 
