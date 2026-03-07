@@ -311,72 +311,52 @@
     <script>
 document.addEventListener("DOMContentLoaded", function () {
     const banner = document.getElementById("browser-warning");
-    
-    // 1. Animação suave (Opcional)
+
+    // 1. Animação de entrada do Main
     const main = document.querySelector("main");
     if (main) {
         main.style.opacity = "0";
-        main.style.transition = "opacity 0.5s ease";
-        setTimeout(() => main.style.opacity = "1", 100);
-    }
-
-    function detectSamsungForcedDark() {
-        const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-        if (!isSamsung) return;
-
-        // Criamos um elemento de teste ultra-específico
-        const test = document.createElement('div');
-        // Texto branco puro
-        test.style.color = 'rgb(255, 255, 255)'; 
-        test.style.position = 'absolute';
-        test.style.left = '-9999px';
-        test.innerText = 'PROBE';
-        document.body.appendChild(test);
-
-        // O Samsung Browser inverte cores de texto de forma assíncrona
+        main.style.transform = "translateY(20px)";
+        main.style.transition = "opacity 0.8s ease, transform 0.8s ease";
         setTimeout(() => {
-            const computedColor = window.getComputedStyle(test).color;
-            const rgb = computedColor.match(/\d+/g);
-            
-            if (rgb) {
-                const r = parseInt(rgb[0]);
-                const g = parseInt(rgb[1]);
-                const b = parseInt(rgb[2]);
-                
-                // Calculamos o brilho do texto que deveria ser BRANCO (255)
-                const textBrightness = (r * 299 + g * 587 + b * 114) / 1000;
-
-                // Se o texto "branco" estiver com brilho baixo (perto de 0),
-                // o navegador inverteu a cor para preto -> MODO DARK ATIVO
-                if (textBrightness < 150) {
-                    showBanner();
-                } else {
-                    if (banner) banner.style.display = "none";
-                }
-            }
-            document.body.removeChild(test);
-        }, 250); // Delay maior para o Android 16 processar a inversão
+            main.style.opacity = "1";
+            main.style.transform = "translateY(0)";
+        }, 100);
     }
 
-    function showBanner() {
-        if (banner) {
-            banner.style.display = "block";
-            const btn = banner.querySelector("button");
-            if (btn) {
-                btn.onclick = (e) => {
-                    e.preventDefault();
-                    const url = window.location.href.replace(/^https?:\/\//, "");
-                    window.location.href = `intent://${url}#Intent;scheme=https;package=com.android.chrome;end`;
-                };
+    // 2. DETECÇÃO POR AMBIENTE (Única que resta se o JS for bloqueado de ler cores)
+    function checkSamsungIssue() {
+        const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+        
+        // Verifica se o celular está em Modo Escuro (System Level)
+        const isSystemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        // Se for Samsung e o sistema estiver Dark, o site VAI estar invertido
+        if (isSamsung && isSystemDark) {
+            if (banner) {
+                banner.style.display = "block";
+                
+                // Configura o botão de abertura no Chrome
+                const btn = banner.querySelector("button");
+                if (btn) {
+                    btn.onclick = function (e) {
+                        e.preventDefault();
+                        const urlSemProtocolo = window.location.href.replace(/^https?:\/\//, "");
+                        const chromeIntent = "intent://" + urlSemProtocolo + "#Intent;scheme=https;package=com.android.chrome;end";
+                        window.location.href = chromeIntent;
+                    };
+                }
             }
         }
     }
 
-    detectSamsungForcedDark();
+    // Executa após o carregamento total
+    checkSamsungIssue();
 });
 </script>
 </body>
 </html>
+
 
 
 
