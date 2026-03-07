@@ -313,7 +313,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const main = document.querySelector("main");
 
-    // Animação de entrada do conteúdo
+    // 1. Animação de entrada (seu código original)
     if (main) {
         main.style.opacity = "0";
         main.style.transform = "translateY(20px)";
@@ -324,23 +324,45 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 100);
     }
 
-    // LÓGICA DO AVISO: Samsung Browser + Dark Mode
-    const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // 2. FUNÇÃO DE DETECÇÃO DE INVERSÃO FORÇADA
+    function isSamsungDarkForced() {
+        const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+        if (!isSamsung) return false;
 
-    if (isSamsung && isDarkMode) {
+        // Criamos um elemento de teste para ver se o browser inverte cores
+        const testDiv = document.createElement('div');
+        testDiv.style.cssText = "background-color: rgb(255, 255, 255); color: rgb(0, 0, 0); position: absolute; left: -9999px; visibility: hidden;";
+        document.body.appendChild(testDiv);
+
+        const computedStyle = window.getComputedStyle(testDiv);
+        const bgColor = computedStyle.backgroundColor;
+        
+        // Se o fundo for branco (255, 255, 255) mas o browser ler algo escuro, 
+        // significa que ele está forçando a inversão.
+        const isInverted = bgColor !== 'rgb(255, 255, 255)' && bgColor !== '#ffffff';
+        
+        document.body.removeChild(testDiv);
+        
+        // Também checamos o media query padrão por segurança
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        return isSamsung && (isInverted || prefersDark);
+    }
+
+    // 3. Execução do Alerta
+    if (isSamsungDarkForced()) {
         const banner = document.getElementById("browser-warning");
         if (banner) {
             banner.style.display = "block";
-        }
-
-        const button = document.querySelector("#browser-warning button");
-        if (button) {
-            button.addEventListener("click", function () {
-                const urlSemProtocolo = window.location.href.replace(/^https?:\/\//, "");
-                const chromeIntent = `intent://${urlSemProtocolo}#Intent;scheme=https;package=com.android.chrome;end`;
-                window.location.href = chromeIntent;
-            });
+            
+            // Ajuste no botão para forçar o Chrome Intent
+            const btn = banner.querySelector("button");
+            if (btn) {
+                btn.onclick = function() {
+                    const url = window.location.href.replace(/^https?:\/\//, "");
+                    window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+                };
+            }
         }
     }
 });
