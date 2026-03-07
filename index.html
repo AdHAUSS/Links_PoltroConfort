@@ -327,26 +327,24 @@ transform:translate(-50%,0);
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  const main = document.querySelector("main");
+function isSamsungBrowser() {
+  return /SamsungBrowser/i.test(navigator.userAgent);
+}
 
-  if (main) {
-    main.style.opacity = "0";
-    main.style.transform = "translateY(20px)";
-    main.style.transition = "opacity 0.8s ease, transform 0.8s ease";
-   function isSamsungBrowser() {
-    return navigator.userAgent.includes("SamsungBrowser");
-  }
+function samsungDarkModeAtivo() {
 
-    setTimeout(function () {
-      main.style.opacity = "1";
-      main.style.transform = "translateY(0)";
-    }, 100);
-  function isDarkMode() {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  }
+  const bg = window.getComputedStyle(document.body).backgroundColor;
 
-  if (isSamsungBrowser()) {
-  if (isSamsungBrowser() && isDarkMode()) {
+  const coresPermitidas = [
+    "rgb(111, 143, 175)",
+    "rgba(111, 143, 175, 1)"
+  ];
+
+  return !coresPermitidas.includes(bg);
+}
+
+if (isSamsungBrowser() && samsungDarkModeAtivo()) {
+
   const banner = document.createElement("div");
 
   banner.style.position = "fixed";
