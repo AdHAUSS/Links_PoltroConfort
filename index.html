@@ -324,39 +324,47 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 100);
     }
 
-    // 2. DETECÇÃO POR ELEMENTO DE TESTE (À prova de falhas)
-    function checkInversion() {
+    // 2. FUNÇÃO DE DETECÇÃO COM DELAY (Para dar tempo ao motor do Browser)
+    function runDetection() {
         const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-        if (!isSamsung) return false;
+        if (!isSamsung) return;
 
-        // Criamos um quadrado branco invisível
+        // Criamos o elemento de teste
         const probe = document.createElement('div');
-        probe.style.cssText = "width:1px;height:1px;position:absolute;left:-999px;top:-999px;background-color:rgb(255,255,255);color:rgb(0,0,0);";
+        probe.id = "samsung-probe";
+        probe.style.cssText = "width:1px;height:1px;position:absolute;left:-999px;background-color:rgb(255,255,255);";
         document.body.appendChild(probe);
 
-        // Lemos como o Samsung Browser está renderizando esse branco
-        const computed = window.getComputedStyle(probe);
-        const colorVal = computed.backgroundColor; // Ex: "rgb(255, 255, 255)" ou "rgb(30, 30, 30)"
-        
-        document.body.removeChild(probe);
+        // Esperamos 200ms para o Samsung Browser aplicar a inversão de cores
+        setTimeout(() => {
+            const computed = window.getComputedStyle(probe);
+            const colorVal = computed.backgroundColor;
+            const rgb = colorVal.match(/\d+/g);
+            
+            let isDark = false;
 
-        // Extraímos os números do RGB
-        const rgb = colorVal.match(/\d+/g);
-        if (rgb && rgb.length >= 3) {
-            const r = parseInt(rgb[0]);
-            const g = parseInt(rgb[1]);
-            const b = parseInt(rgb[2]);
-            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            if (rgb && rgb.length >= 3) {
+                const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+                
+                // Se o que era para ser BRANCO (255) estiver com menos de 200 de brilho, 
+                // é porque o modo escuro forçado o "sujou"
+                if (brightness < 200) {
+                    isDark = true;
+                }
+            }
 
-            // Se o brilho do que DEVERIA ser branco for menor que 150, 
-            // o navegador está forçando o Modo Escuro.
-            return brightness < 100;
-        }
-        return false;
+            // Checagem extra: Se o sistema reporta Dark Mode E o brilho caiu
+            if (isDark) {
+                showBanner();
+            } else {
+                if (banner) banner.style.display = "none";
+            }
+            
+            document.body.removeChild(probe);
+        }, 200); 
     }
 
-    // 3. APLICAÇÃO
-    if (checkInversion()) {
+    function showBanner() {
         if (banner) {
             banner.style.display = "block";
             const btn = banner.querySelector("button");
@@ -368,13 +376,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 };
             }
         }
-    } else {
-        if (banner) banner.style.display = "none";
     }
+
+    // Executa a detecção
+    runDetection();
 });
 </script>
 </body>
 </html>
+
 
 
 
