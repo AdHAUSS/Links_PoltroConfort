@@ -21,143 +21,91 @@
 
     <!-- Custom Styles -->
     <style>
-	:root {
-   	    color-scheme: light;
-	}
+:root { color-scheme: light; }
+    
+    html, body {
+        font-family: 'Inter', sans-serif;
+        background: radial-gradient(circle at top,#8FAECC 0%,#6F8FAF 45%,#5f7f9e 100%);
+        color: #ffffff !important;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+    }
 
-	html {
-  	    
-	    forced-color-adjust: ;
-	}
+    /* --- ESTILO DO BANNER (CORRIGIDO) --- */
+    #browser-warning {
+        display: none; /* Começa escondido */
+        background-color: #ff4444;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-family: sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+        border-bottom: 3px solid #cc0000;
+        width: 100%;
+        position: relative;
+        z-index: 99999;
+    }
 
-	body {
-   	    padding-top: 80px;
-	    color: #ffffff !important;
-	    forced-color-adjust: ;
-	}
+    /* Mostra apenas se for Samsung */
+    html.is-samsung #browser-warning {
+        display: block !important;
+    }
 
-	@media (prefers-color-scheme: dark) {
-  	    html, body {
-      		background-color: #6F8FAF !important;
-        	color: #ffffff !important;
+    /* Esconde se o sistema estiver em modo CLARO */
+    @media (prefers-color-scheme: light) {
+        html.is-samsung #browser-warning {
+            display: none !important;
         }
+    }
 
-        img {
-            filter:  !important;
-        }
-	svg {
-    	    filter:  !important;
-	}
-        }
+    #browser-warning button {
+        margin-top: 10px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        background: white;
+        color: #ff4444;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+    }
 
+    /* --- SEUS ESTILOS ORIGINAIS (NEOMORPHISM) --- */
+    .neomorph-card {
+        position:relative;
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-radius:18px;
+        border:1px solid rgba(255,255,255,0.12);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        cursor: pointer;
+        overflow:hidden;
+    }
+    .neomorph-card:hover { transform:translateY(-4px) scale(1.01); box-shadow: 0 20px 40px rgba(0,0,0,0.45); }
+    .neomorph-card:active { transform: scale(0.97); }
 
-        html, body {
-    	font-family: 'Inter', sans-serif;
-   	background: radial-gradient(circle at top,#8FAECC 0%,#6F8FAF 45%,#5f7f9e 100%);
-	color-scheme: light;
-	-webkit-font-smoothing: antialiased;
-	}
+    .gold-border-container { position: relative; display: inline-block; animation: float 4s ease-in-out infinite; }
+    @keyframes float{ 0%, 100%{ transform: translateY(0px);} 50%{ transform: translateY(-6px);} }
 
-	/* Neomorphism Card Style */
-        .neomorph-card {
-	    position:relative;
-            background: rgba(255,255,255,0.08);
-	    backdrop-filter: blur(14px);
-	    -webkit-backdrop-filter: blur(14px);
-	    border-radius:18px;
-	    border:1px solid rgba(255,255,255,0.12);
+    .gold-border-glow {
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #FCD34D, #F59E0B, #FCD34D);
+        opacity: 0.45;
+        filter: blur(2px);
+        animation: pulse-gold 2s infinite;
+    }
+    @keyframes pulse-gold { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-            box-shadow: 
-                0 15px 35px rgba(0,0,0,0.35),
-                inset 0 1px 0 rgba(255,255,255,0.05);
-
-            
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-	    cursor: pointer;
-	    overflow:hidden;
-        }
-
-        .neomorph-card:hover {
-            transform:translateY(-4px) scale(1.01);
-	    box-shadow:
-	    0 20px 40px rgba(0,0,0,0.45);
-        }
-
-        .neomorph-card:active {
-            transform: scale(0.97);
-            box-shadow: inset 0 3px 10px rgba(0,0,0,0.35);
-        }
-
-        /* Neomorphism Button/Icon Style */
-        .neomorph-btn {
-            background-color: #6F8FAF;
-            box-shadow: 4px 4px 8px #5e7a95, -4px -4px 8px #80a4c9;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.2s ease;
-        }
-
-        .neomorph-btn:hover {
-            transform: translateY(-2px);
-            color: #FCD34D; /* Yellow-300 */
-        }
-
-        /* Animated Golden Border */
-        .gold-border-container {
-            position: relative;
-            display: inline-block;
-	    animation: float 4s ease-in-out infinite;
-	 }
-
-     	   @keyframes float{
-	   0%{ transform: translateY(0px);}
-	   50%{ transform: translateY(-6px);}
-	   100%{ transform: translateY(0px);}
-        }
-
-        .gold-border-glow {
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #FCD34D, #F59E0B, #FCD34D);
-            opacity: 0.45;
-            filter: blur(2px);
-            animation: pulse-gold 2s infinite;
-        }
-
-        @keyframes pulse-gold {
-            0% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
-            100% { opacity: 0.5; transform: scale(1); }
-        }
-        
-        @keyframes fadeUp {
-   	    from {
-        	opacity: 0;
-       		transform: translateY(30px);
-   	    }
-   	    to {
-       		opacity: 1;
-        	transform: translateY(0);
-   	    }
-        }
-
-        /* Utility for image placement */
-        .card-image-container {
-            flex-shrink: 0;
-            width: 75px;
-            height: 75px;
-            border-radius: 50%;
-            overflow: hidden;
-
-	    background:#5f7f9e;
-
-	    border: 2px solid rgba(255,255,255,0.15);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-
-	    display:flex;
-	    align-items:center;
-	    justify-content:center;
-        }
+    .card-image-container {
+        flex-shrink: 0; width: 75px; height: 75px; border-radius: 50%; overflow: hidden;
+        background:#5f7f9e; border: 2px solid rgba(255,255,255,0.15);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center;
+    }
 /* Esconde o banner por padrão em todos os navegadores */
 #browser-warning {
     display: none !important;
@@ -352,6 +300,7 @@ html.is-samsung #browser-warning {
 </script>
 </body>
 </html>
+
 
 
 
