@@ -187,36 +187,35 @@
   cursor: pointer;
 }
 
+/* --- NOVA ESTRATÉGIA: ANULAÇÃO DE INVERSÃO --- */
+
+/* Alvo: A div que contém o degradiente da borda e o brilho */
+html.samsung-fix .gold-border-container div[class*="bg-gradient"],
 html.samsung-fix .gold-border-glow {
-    /* Em vez de gradiente, usamos uma cor sólida de 'ouro velho' */
-    /* O Samsung não inverte cores sólidas menos saturadas */
-    background: #b8860b !important; 
-    filter: blur(6px) !important;
-    opacity: 0.3 !important;
+    /* O Samsung inverte as cores. Nós invertemos de volta. 
+       Isso cria um efeito 'espelho' que anula o vermelho. */
+    filter: invert(100%) hue-rotate(180deg) !important;
+    -webkit-filter: invert(100%) hue-rotate(180deg) !important;
+    
+    /* Forçamos o navegador a não tentar 'ajudar' nas cores aqui */
+    forced-color-adjust: none !important;
 }
 
-html.samsung-fix .gold-border-container div[class*="bg-gradient"] {
-    background: #b8860b !important; /* Remove o gradiente inline da borda */
-    background-image: none !important;
-}
-
+/* Ajuste do fundo para não ficar 'preto puro' no Samsung */
 html.samsung-fix body {
-    /* Mantém o seu azul original, mas força para o Samsung não escurecer demais */
-    background: #6F8FAF !important; 
+    background-color: #6F8FAF !important;
+    background-image: radial-gradient(circle at top,#8FAECC 0%,#6F8FAF 45%,#5f7f9e 100%) !important;
 }
 
-/* 4. Garante que os títulos não sofram mutação de cor */
-html.samsung-fix h1, 
-html.samsung-fix h2, 
-html.samsung-fix p {
-    color: #ffffff !important;
-    filter: none !important;
-}
-
-/* 5. Ajuste nos Cards para o Samsung não 'lavar' o fundo */
-html.samsung-fix .neomorph-card {
-    background: rgba(30, 41, 59, 0.7) !important; /* Slate-800 com opacidade */
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+/* Garante que o brilho original continue funcionando nos outros browsers */
+.gold-border-glow {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #FCD34D, #F59E0B, #FCD34D);
+    opacity: 0.45;
+    filter: blur(2px);
+    animation: pulse-gold 2s infinite;
 }
     </style>
 </head>
@@ -337,27 +336,18 @@ html.samsung-fix .neomorph-card {
 
     <!-- Simple Animation Script -->
     <script>
- document.addEventListener("DOMContentLoaded", function () {
-    const main = document.querySelector("main");
+document.addEventListener("DOMContentLoaded", function () {
     const htmlElement = document.documentElement;
-    
+    // Detecção simplificada e mais direta
     const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    // Se for Samsung no Modo Escuro -> Aplica o visual alternativo e NÃO mostra o banner
-    if (isSamsung && prefersDark) {
+    if (isSamsung) {
+        // Injeta a classe de correção imediatamente
         htmlElement.classList.add('samsung-fix');
-    } 
-    // Se for Samsung no Modo Claro -> Mostra o banner de recomendação
-    else if (isSamsung && !prefersDark) {
+        
+        // Exibe o banner (que agora você confirmou que o botão funciona)
         const banner = document.getElementById("browser-warning");
         if (banner) banner.style.display = "block";
-    }
-
-    // Animação de entrada
-    if (main) {
-        main.style.opacity = "1";
-        main.style.transform = "translateY(0)";
     }
 
     // Botão do Chrome
@@ -373,5 +363,6 @@ html.samsung-fix .neomorph-card {
 </script>
 </body>
 </html>
+
 
 
