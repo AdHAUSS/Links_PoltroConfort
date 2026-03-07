@@ -313,7 +313,7 @@
     const main = document.querySelector("main");
     const banner = document.getElementById("browser-warning");
 
-    // 1. Animação de entrada
+    // 1. Animação de entrada do conteúdo (Seu efeito original)
     if (main) {
         main.style.opacity = "0";
         main.style.transform = "translateY(20px)";
@@ -324,44 +324,53 @@
         }, 100);
     }
 
-    // 2. FUNÇÃO DE DETECÇÃO ROBUSTA
+    // 2. FUNÇÃO DE DETECÇÃO POR LUMINOSIDADE
     function shouldShowWarning() {
         const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
         if (!isSamsung) return false;
 
-        // Verifica se o sistema reporta Dark Mode (Media Query)
+        // Verifica se o sistema reporta Dark Mode oficialmente
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        // Verifica se o Navegador forçou uma cor de fundo diferente da sua (6F8FAF)
-        // O Samsung Browser no modo escuro forçado raramente mantém o azul original
-        const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+        // Pega a cor de fundo que o navegador REALMENTE está pintando agora
+        const bodyStyle = window.getComputedStyle(document.body);
+        const rgb = bodyStyle.backgroundColor.match(/\d+/g);
         
-        // Cor original em RGB: rgb(111, 143, 175)
-        const isOriginalBlue = bodyBg.includes("111") && bodyBg.includes("143");
+        let isActuallyDark = false;
+        if (rgb && rgb.length >= 3) {
+            // Fórmula de Luminosidade (WCAG): (0.299*R + 0.587*G + 0.114*B)
+            const brightness = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]);
+            
+            // Se o brilho for menor que 120 (numa escala de 0 a 255), é Dark Mode Forçado
+            if (brightness < 120) {
+                isActuallyDark = true;
+            }
+        }
 
-        // Se é Samsung E (o sistema diz que é dark OU o azul sumiu do fundo)
-        return isSamsung && (prefersDark || !isOriginalBlue);
+        // Retorna TRUE apenas se for Samsung E (estiver escuro no sistema OU forçado pelo navegador)
+        return isSamsung && (prefersDark || isActuallyDark);
     }
 
-    // 3. Aplica a lógica
+    // 3. APLICAÇÃO DA LÓGICA NO BANNER
     if (shouldShowWarning()) {
         if (banner) {
             banner.style.display = "block";
             
-            // Força o estilo do banner para garantir que ele apareça legível 
-            // mesmo com a inversão do Samsung
-            banner.style.backgroundColor = "#111111"; 
-            banner.style.color = "#ffffff";
-
             const btn = banner.querySelector("button");
             if (btn) {
                 btn.onclick = function (e) {
                     e.preventDefault();
-                    const url = window.location.href.replace(/^https?:\/\//, "");
-                    const chromeIntent = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+                    // Constrói o link para abrir direto no Chrome do Android
+                    const urlSemProtocolo = window.location.href.replace(/^https?:\/\//, "");
+                    const chromeIntent = "intent://" + urlSemProtocolo + "#Intent;scheme=https;package=com.android.chrome;end";
                     window.location.href = chromeIntent;
                 };
             }
+        }
+    } else {
+        // Se não for Samsung ou se estiver no Modo Claro, garante que o aviso suma
+        if (banner) {
+            banner.style.display = "none";
         }
     }
 });
