@@ -320,28 +320,32 @@
         if (!banner) return;
 
         const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-        
         if (!isSamsung) {
             banner.remove();
             return;
         }
 
-        // Aguardamos o navegador aplicar os filtros visuais
+        // Delay para o navegador processar a "estragada" no dourado
         setTimeout(() => {
-            // Pegamos a sua logo principal (a primeira imagem do site)
-            const logo = document.querySelector('img');
-            if (logo) {
-                const filters = window.getComputedStyle(logo).filter;
+            const glow = document.querySelector('.gold-border-glow');
+            if (glow) {
+                // Pegamos o background (que é um gradiente ou cor)
+                const computedStyle = window.getComputedStyle(glow);
+                const bg = computedStyle.backgroundColor || computedStyle.backgroundImage;
                 
-                // No Modo Claro, o filtro é "none". 
-                // No Modo Escuro forçado, o Samsung Browser injeta filtros como "invert" ou "brightness"
-                if (filters === 'none' || filters === '' || filters === 'all') {
+                // No modo DARK FORÇADO, o Samsung altera o espectro do amarelo/dourado.
+                // Vamos verificar se o valor "rgb(252, 211, 77)" - que é o seu FCD34D - ainda existe.
+                // Se o navegador mudou para algo que não contém mais os valores originais de amarelo:
+                const isOriginalGold = bg.includes("252") || bg.includes("FCD34D") || bg.includes("211");
+
+                if (isOriginalGold) {
+                    // Se ainda está dourado, o site está normal -> Remove banner
                     banner.remove();
                     return;
                 }
             }
 
-            // Configuração dos botões caso o banner permaneça (Modo Escuro)
+            // Se chegou aqui, o dourado sumiu (virou vermelho/outro) -> Mantém banner e configura botões
             const btnChrome = document.getElementById('open-chrome');
             const btnClose = document.getElementById('close-warning');
 
@@ -354,7 +358,7 @@
             if (btnClose) {
                 btnClose.onclick = function() { banner.remove(); };
             }
-        }, 400); // Delay levemente maior para garantir o processamento
+        }, 500); 
     }
 
     manageBanner();
@@ -362,6 +366,7 @@
 </script>
 </body>
 </html>
+
 
 
 
