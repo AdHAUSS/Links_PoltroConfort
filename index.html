@@ -315,53 +315,68 @@
     <!-- Simple Animation Script -->
     <script>
 (function() {
-    // Função para gerenciar o banner
     function manageBanner() {
         const banner = document.getElementById('browser-warning');
         if (!banner) return;
 
         const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
         
-        // Se não for Samsung, removemos o aviso imediatamente
+        // Se não for Samsung, removemos logo de cara
         if (!isSamsung) {
             banner.remove();
             return;
         }
 
-        // Se for Samsung, configuramos os botões
-        const btnChrome = document.getElementById('open-chrome');
-        const btnClose = document.getElementById('close-warning');
+        // Se for Samsung, vamos checar se a página REALMENTE está escura (invertida)
+        // Criamos um atraso de 300ms para o navegador aplicar a inversão
+        setTimeout(() => {
+            const bodyStyle = window.getComputedStyle(document.body);
+            const rgb = bodyStyle.backgroundColor.match(/\d+/g);
+            
+            if (rgb && rgb.length >= 3) {
+                // Cálculo de luminosidade (0-255)
+                const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
 
-        if (btnChrome) {
-            btnChrome.onclick = function() {
-                const url = window.location.href.replace(/^https?:\/\//, "");
-                window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
-            };
-        }
+                // O seu azul original (#6F8FAF) tem brilho ~136. 
+                // No modo escuro forçado, ele cai para menos de 60.
+                // Se o brilho for maior que 100, significa que o modo claro está ativo.
+                if (brightness > 100) {
+                    banner.remove();
+                    return;
+                }
+            }
 
-        if (btnClose) {
-            btnClose.onclick = function() {
-                banner.remove();
-            };
-        }
+            // Se chegou aqui, é Samsung e está Escuro. Configuramos os botões:
+            const btnChrome = document.getElementById('open-chrome');
+            const btnClose = document.getElementById('close-warning');
+
+            if (btnChrome) {
+                btnChrome.onclick = function() {
+                    const url = window.location.href.replace(/^https?:\/\//, "");
+                    window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+                };
+            }
+
+            if (btnClose) {
+                btnClose.onclick = function() {
+                    banner.remove();
+                };
+            }
+        }, 300); 
     }
 
-    // Tenta rodar agora
     manageBanner();
-    // Tenta rodar de novo quando o DOM carregar (garantia)
-    window.addEventListener('DOMContentLoaded', manageBanner);
 })();
 
-// Sua animação do conteúdo
+// Garante que o conteúdo apareça
 document.addEventListener("DOMContentLoaded", function() {
     const main = document.querySelector("main");
-    if (main) {
-        main.style.opacity = "1"; // Garante visibilidade
-    }
+    if (main) main.style.opacity = "1";
 });
 </script>
 </body>
 </html>
+
 
 
 
