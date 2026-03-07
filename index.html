@@ -27,13 +27,13 @@
 
 	html {
   	    
-	    forced-color-adjust: none;
+	    forced-color-adjust: ;
 	}
 
 	body {
    	    padding-top: 80px;
 	    color: #ffffff !important;
-	    forced-color-adjust: none;
+	    forced-color-adjust: ;
 	}
 
 	@media (prefers-color-scheme: dark) {
@@ -43,10 +43,10 @@
         }
 
         img {
-            filter: none !important;
+            filter:  !important;
         }
 	svg {
-    	    filter: none !important;
+    	    filter:  !important;
 	}
         }
 
@@ -179,7 +179,7 @@
 #browser-warning button {
   margin-top: 10px;
   padding: 10px 16px;
-  border: none;
+  border: ;
   border-radius: 8px;
   background: #4285F4;
   color: white;
@@ -194,10 +194,11 @@
 </head>
 <body class="min-h-screen flex flex-col items-center py-12 px-4">
 
-<div id="browser-warning" style="display:none;">
-  Para melhor visualização deste site, recomendamos abrir no Google Chrome.
+<div id="browser-warning" style="display:block; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 420px; background: #111; color: #fff; padding: 16px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: Arial, sans-serif; text-align: center; z-index: 9999;">
+  ⚠️ Detectamos uma possível inversão de cores. Para uma melhor visualização, recomendamos o Google Chrome.
   <br>
-  <button>Abrir no Chrome</button>
+  <button style="margin-top: 10px; padding: 10px 16px; border: none; border-radius: 8px; background: #4285F4; color: white; font-weight: bold; cursor: pointer;">Abrir no Chrome</button>
+  <button id="close-warning" style="background:transparent; color:#aaa; font-size:12px; margin-left:10px; text-decoration:underline;">Ignorar</button>
 </div>
 
     <!-- Main Container -->
@@ -309,53 +310,54 @@
 
     <!-- Simple Animation Script -->
     <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const banner = document.getElementById("browser-warning");
-
-    // 1. Animação de entrada do Main
-    const main = document.querySelector("main");
-    if (main) {
-        main.style.opacity = "0";
-        main.style.transform = "translateY(20px)";
-        main.style.transition = "opacity 0.8s ease, transform 0.8s ease";
-        setTimeout(() => {
-            main.style.opacity = "1";
-            main.style.transform = "translateY(0)";
-        }, 100);
-    }
-
-    // 2. DETECÇÃO POR AMBIENTE (Única que resta se o JS for bloqueado de ler cores)
-    function checkSamsungIssue() {
+(function() {
+    // Rodar o mais rápido possível, antes mesmo do DOM completo se necessário
+    function handleWarning() {
+        const banner = document.getElementById("browser-warning");
         const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-        
-        // Verifica se o celular está em Modo Escuro (System Level)
         const isSystemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        // Se for Samsung e o sistema estiver Dark, o site VAI estar invertido
-        if (isSamsung && isSystemDark) {
-            if (banner) {
-                banner.style.display = "block";
-                
-                // Configura o botão de abertura no Chrome
-                const btn = banner.querySelector("button");
-                if (btn) {
-                    btn.onclick = function (e) {
-                        e.preventDefault();
-                        const urlSemProtocolo = window.location.href.replace(/^https?:\/\//, "");
-                        const chromeIntent = "intent://" + urlSemProtocolo + "#Intent;scheme=https;package=com.android.chrome;end";
-                        window.location.href = chromeIntent;
-                    };
-                }
-            }
+        // Se NÃO for Samsung OU se o sistema estiver em modo CLARO, removemos o aviso
+        if (!isSamsung || !isSystemDark) {
+            if (banner) banner.remove(); 
+            return;
+        }
+
+        // Se chegou aqui, é Samsung + Dark Mode. Configuramos os botões:
+        const btnChrome = banner.querySelector("button");
+        if (btnChrome) {
+            btnChrome.onclick = function() {
+                const url = window.location.href.replace(/^https?:\/\//, "");
+                window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+            };
+        }
+
+        const btnClose = document.getElementById("close-warning");
+        if (btnClose) {
+            btnClose.onclick = function() {
+                banner.remove();
+            };
         }
     }
 
-    // Executa após o carregamento total
-    checkSamsungIssue();
+    // Executa assim que o script carregar e tenta novamente no DOMContentLoaded
+    handleWarning();
+    window.addEventListener('DOMContentLoaded', handleWarning);
+})();
+
+// Sua animação do conteúdo (separada para não interferir)
+document.addEventListener("DOMContentLoaded", function() {
+    const main = document.querySelector("main");
+    if (main) {
+        main.style.opacity = "0";
+        main.style.transition = "opacity 0.8s ease";
+        setTimeout(() => { main.style.opacity = "1"; }, 100);
+    }
 });
 </script>
 </body>
 </html>
+
 
 
 
