@@ -339,8 +339,8 @@
 
                 // O seu azul original (#6F8FAF) tem brilho ~136. 
                 // No modo escuro forçado, ele cai para menos de 60.
-                // Se o brilho for maior que 100, significa que o modo claro está ativo.
-                if (brightness > 100) {
+                // Se o brilho for maior que 80, significa que o modo claro está ativo.
+                if (brightness > 80) {
                     banner.remove();
                     return;
                 }
@@ -376,6 +376,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
+
 
 
 
