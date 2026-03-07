@@ -54,7 +54,7 @@
         html, body {
     	font-family: 'Inter', sans-serif;
    	background: radial-gradient(circle at top,#8FAECC 0%,#6F8FAF 45%,#5f7f9e 100%);
-	color-scheme: light !important;
+	color-scheme: light;
 	-webkit-font-smoothing: antialiased;
 	}
 
@@ -158,58 +158,37 @@
 	    align-items:center;
 	    justify-content:center;
         }
-#chrome-recommendation {
-position: fixed;
-bottom: 20px;
-left: 50%;
-transform: translateX(-50%);
-background: rgba(15,23,42,0.85);
-backdrop-filter: blur(10px);
-border: 1px solid rgba(255,255,255,0.12);
-border-radius: 14px;
-padding: 14px 16px;
-display: flex;
-align-items: center;
-gap: 14px;
-color: white;
-font-size: 14px;
-box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-z-index: 9999;
-animation: fadeUpBanner .5s ease;
-max-width: 420px;
-width: calc(100% - 40px);
+
+#browser-warning {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 420px;
+  background: #111;
+  color: #fff;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  font-family: Arial, sans-serif;
+  text-align: center;
+  z-index: 9999;
 }
 
-#chrome-recommendation button {
-background: #4285F4;
-border: none;
-padding: 8px 14px;
-border-radius: 8px;
-color: white;
-font-weight: 600;
-cursor: pointer;
+#browser-warning button {
+  margin-top: 10px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #4285F4;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-#chrome-recommendation button:hover{
-opacity:0.9;
-}
-
-#chrome-recommendation .close-btn{
-background: transparent;
-font-size:18px;
-padding:0 4px;
-opacity:.7;
-}
-
-@keyframes fadeUpBanner{
-from{
-opacity:0;
-transform:translate(-50%,20px);
-}
-to{
-opacity:1;
-transform:translate(-50%,0);
-}
+#browser-warning button:hover {
+  opacity: 0.9;
 }
     </style>
 </head>
@@ -324,6 +303,10 @@ transform:translate(-50%,0);
 
     <!-- Simple Animation Script -->
     <script>
+     
+function isSamsungBrowser() {
+  return /SamsungBrowser/i.test(navigator.userAgent);
+}
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -336,8 +319,8 @@ function samsungDarkModeAtivo() {
   const bg = window.getComputedStyle(document.body).backgroundColor;
 
   const coresPermitidas = [
-    "rgb(28, 15, 8)",
-    "rgba(28, 15, 8, 1)"
+    "rgb(111, 143, 175)",
+    "rgba(111, 143, 175, 1)"
   ];
 
   return !coresPermitidas.includes(bg);
@@ -347,7 +330,7 @@ if (isSamsungBrowser() && samsungDarkModeAtivo()) {
 
   const banner = document.createElement("div");
 
-  banner.style.position = "fixed";
+ banner.style.position = "fixed";
   banner.style.bottom = "25px";
   banner.style.left = "50%";
   banner.style.transform = "translateX(-50%)";
@@ -381,23 +364,22 @@ if (isSamsungBrowser() && samsungDarkModeAtivo()) {
   cursor:pointer;
   box-shadow:0 6px 18px rgba(0,0,0,0.35);
   ">
-  Abrir
-  </button>
-  `;
+Abrir
+  </button>;
+
 
   document.body.appendChild(banner);
 
   document.getElementById("openChrome").addEventListener("click", function () {
 
     const chromeIntent =
-      "intent://" +
-      window.location.href.replace(/^https?:\/\//, "") +
-      "#Intent;scheme=https;package=com.android.chrome;end";
+    "intent://" +
+    window.location.href.replace(/^https?:\/\//, "") +
+    "#Intent;scheme=https;package=com.android.chrome;end";
 
     window.location.href = chromeIntent;
 
   });
-
 }
 
 });
