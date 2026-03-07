@@ -159,6 +159,28 @@
 	    justify-content:center;
         }
 
+/* Estilo especial para Samsung: Cores que não sofrem com a inversão agressiva */
+html.samsung-fix body {
+    background: #1a2a3a !important; /* Um azul marinho bem escuro, quase preto */
+    color: #ffffff !important;
+}
+
+html.samsung-fix .neomorph-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 10px 10px 20px rgba(0,0,0,0.5), -5px -5px 15px rgba(255,255,255,0.02) !important;
+}
+
+html.samsung-fix .text-blue-100, 
+html.samsung-fix .text-gray-200 {
+    color: #cbd5e1 !important; /* Cinza claro para leitura perfeita */
+}
+
+/* Esconde o banner de aviso se estivermos usando a versão 'corrigida' */
+html.samsung-fix #browser-warning {
+    display: none !important;
+}
+		
 #browser-warning {
   position: fixed;
   bottom: 20px;
@@ -311,9 +333,24 @@
     <script>
  document.addEventListener("DOMContentLoaded", function () {
     const main = document.querySelector("main");
-    const banner = document.getElementById("browser-warning");
+    const htmlElement = document.documentElement;
+    
+    // 1. Identifica se é Samsung e se está em Modo Escuro
+    const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    // 1. Animação de entrada
+    // 2. Aplica a "Versão Dark Elegante" se for Samsung no Escuro
+    if (isSamsung && prefersDark) {
+        htmlElement.classList.add('samsung-fix');
+        console.log("Modo de compatibilidade Samsung Dark ativado.");
+    } else if (isSamsung && !prefersDark) {
+        // Se for Samsung mas estiver no MODO CLARO, 
+        // o banner de aviso ainda pode ser útil (opcional)
+        const banner = document.getElementById("browser-warning");
+        if (banner) banner.style.display = "block";
+    }
+
+    // 3. Animação de entrada do conteúdo (seu padrão)
     if (main) {
         main.style.opacity = "0";
         main.style.transform = "translateY(20px)";
@@ -324,48 +361,18 @@
         }, 100);
     }
 
-    // 2. FUNÇÃO DE DETECÇÃO ROBUSTA
-    function shouldShowWarning() {
-        const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-        if (!isSamsung) return false;
-
-        // Verifica se o sistema reporta Dark Mode (Media Query)
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-        // Verifica se o Navegador forçou uma cor de fundo diferente da sua (6F8FAF)
-        // O Samsung Browser no modo escuro forçado raramente mantém o azul original
-        const bodyBg = window.getComputedStyle(document.body).backgroundColor;
-        
-        // Cor original em RGB: rgb(111, 143, 175)
-        const isOriginalBlue = bodyBg.includes("111") && bodyBg.includes("143");
-
-        // Se é Samsung E (o sistema diz que é dark OU o azul sumiu do fundo)
-        return isSamsung && (prefersDark || !isOriginalBlue);
-    }
-
-    // 3. Aplica a lógica
-    if (shouldShowWarning()) {
-        if (banner) {
-            banner.style.display = "block";
-            
-            // Força o estilo do banner para garantir que ele apareça legível 
-            // mesmo com a inversão do Samsung
-            banner.style.backgroundColor = "#111111"; 
-            banner.style.color = "#ffffff";
-
-            const btn = banner.querySelector("button");
-            if (btn) {
-                btn.onclick = function (e) {
-                    e.preventDefault();
-                    const url = window.location.href.replace(/^https?:\/\//, "");
-                    const chromeIntent = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
-                    window.location.href = chromeIntent;
-                };
-            }
-        }
+    // 4. Configuração do botão do Chrome (caso o banner apareça no modo claro)
+    const btnChrome = document.getElementById("open-chrome") || document.querySelector("#browser-warning button");
+    if (btnChrome) {
+        btnChrome.onclick = function (e) {
+            e.preventDefault();
+            const url = window.location.href.replace(/^https?:\/\//, "");
+            window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+        };
     }
 });
 </script>
 </body>
 </html>
+
 
