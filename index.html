@@ -223,38 +223,6 @@ html.samsung-fix .gold-border-glow {
     border: 1px solid #1e293b;
     backdrop-filter: blur(10px);
 }
-Por que o banner apareceu se tentamos esconder?
-No seu script atual, ele está configurado para:
-
-Se for Samsung + Dark: Adiciona a classe (mas você não tinha mandado esconder o banner aqui).
-
-Se for Samsung + Light: Mostra o banner.
-
-Vamos ajustar o Script para ele ser mais inteligente:
-
-JavaScript
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const htmlElement = document.documentElement;
-    const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (isSamsung) {
-        // SEMPRE aplica a correção de cores no Samsung para prevenir erros
-        htmlElement.classList.add('samsung-fix');
-        
-        // SÓ mostra o banner se o usuário NÃO estiver no modo escuro 
-        // ou se você realmente quiser que ele mude para o Chrome
-        const banner = document.getElementById("browser-warning");
-        if (banner) {
-            // Se você quiser esconder o banner totalmente no modo dark, descomente a linha abaixo:
-            // if (prefersDark) banner.style.display = "none"; else 
-            banner.style.display = "block";
-        }
-    }
-    
-    // ... restante do código de animação ...
-});
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-12 px-4">
@@ -374,42 +342,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     <!-- Simple Animation Script -->
     <script>
- document.addEventListener("DOMContentLoaded", function () {
-    const main = document.querySelector("main");
+document.addEventListener("DOMContentLoaded", function () {
     const htmlElement = document.documentElement;
-    
     const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    // Se for Samsung no Modo Escuro -> Aplica o visual alternativo e NÃO mostra o banner
-    if (isSamsung && prefersDark) {
+    if (isSamsung) {
+        // SEMPRE aplica a correção de cores no Samsung para prevenir erros
         htmlElement.classList.add('samsung-fix');
-    } 
-    // Se for Samsung no Modo Claro -> Mostra o banner de recomendação
-    else if (isSamsung && !prefersDark) {
+        
+        // SÓ mostra o banner se o usuário NÃO estiver no modo escuro 
+        // ou se você realmente quiser que ele mude para o Chrome
         const banner = document.getElementById("browser-warning");
-        if (banner) banner.style.display = "block";
+        if (banner) {
+            // Se você quiser esconder o banner totalmente no modo dark, descomente a linha abaixo:
+            // if (prefersDark) banner.style.display = "none"; else 
+            banner.style.display = "block";
+        }
     }
-
-    // Animação de entrada
-    if (main) {
-        main.style.opacity = "1";
-        main.style.transform = "translateY(0)";
-    }
-
-    // Botão do Chrome
-    const btnChrome = document.querySelector("#browser-warning button");
-    if (btnChrome) {
-        btnChrome.onclick = function (e) {
-            e.preventDefault();
-            const url = window.location.href.replace(/^https?:\/\//, "");
-            window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
-        };
-    }
+    
+    // ... restante do código de animação ...
 });
 </script>
 </body>
 </html>
+
 
 
 
