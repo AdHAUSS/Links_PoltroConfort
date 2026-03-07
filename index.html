@@ -194,13 +194,13 @@
 </head>
 <body class="min-h-screen flex flex-col items-center py-12 px-4">
 
-<div id="browser-warning" style="display: block !important; background-color: #ff4444; color: white; padding: 15px; text-align: center; font-family: sans-serif; font-size: 14px; font-weight: bold; border-bottom: 3px solid #cc0000;">
-    O Modo Escuro do Samsung Browser pode alterar as cores deste site. 
+<div id="browser-warning" style="display: none; background-color: #ff4444; color: white; padding: 15px; text-align: center; font-family: sans-serif; font-size: 14px; font-weight: bold; border-bottom: 3px solid #cc0000; position: relative; z-index: 10000;">
+    ⚠️ O Modo Escuro do Samsung Browser pode alterar as cores deste site.
     <br>
     <button id="open-chrome" style="margin-top: 8px; background: white; color: #ff4444; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;">
-        USAR O GOOGLE CHROME
+        ABRIR NO CHROME
     </button>
-    <button id="close-warning" style="margin-left: 10px; background: transparent; color: white; border: 1px solid white; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">
+    <button id="close-warning" style="margin-left: 10px; background: transparent; color: white; border: 1px solid white; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer;">
         IGNORAR
     </button>
 </div>
@@ -315,57 +315,36 @@
     <!-- Simple Animation Script -->
     <script>
 (function() {
-    function manageBanner() {
-        const banner = document.getElementById('browser-warning');
-        if (!banner) return;
-
-        const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-        if (!isSamsung) {
-            banner.remove();
-            return;
+    const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+    const banner = document.getElementById('browser-warning');
+    
+    if (isSamsung && banner) {
+        // 1. O banner começa escondido (display: none no HTML acima)
+        
+        // 2. Se o sistema reporta Dark Mode, mostramos o banner.
+        // Já que não conseguimos ler a cor "forçada", vamos assumir que se o 
+        // celular está em Dark Mode, o Samsung Browser VAI estragar o site.
+        const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (isDark) {
+            banner.style.display = 'block';
         }
 
-        // Delay para o navegador processar a "estragada" no dourado
-        setTimeout(() => {
-            const glow = document.querySelector('.gold-border-glow');
-            if (glow) {
-                // Pegamos o background (que é um gradiente ou cor)
-                const computedStyle = window.getComputedStyle(glow);
-                const bg = computedStyle.backgroundColor || computedStyle.backgroundImage;
-                
-                // No modo DARK FORÇADO, o Samsung altera o espectro do amarelo/dourado.
-                // Vamos verificar se o valor "rgb(252, 211, 77)" - que é o seu FCD34D - ainda existe.
-                // Se o navegador mudou para algo que não contém mais os valores originais de amarelo:
-                const isOriginalGold = bg.includes("252") || bg.includes("FCD34D") || bg.includes("211");
-
-                if (isOriginalGold) {
-                    // Se ainda está dourado, o site está normal -> Remove banner
-                    banner.remove();
-                    return;
-                }
-            }
-
-            // Se chegou aqui, o dourado sumiu (virou vermelho/outro) -> Mantém banner e configura botões
-            const btnChrome = document.getElementById('open-chrome');
-            const btnClose = document.getElementById('close-warning');
-
-            if (btnChrome) {
-                btnChrome.onclick = function() {
-                    const url = window.location.href.replace(/^https?:\/\//, "");
-                    window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
-                };
-            }
-            if (btnClose) {
-                btnClose.onclick = function() { banner.remove(); };
-            }
-        }, 500); 
+        // 3. Configuração dos botões
+        document.getElementById('open-chrome').onclick = function() {
+            const url = window.location.href.replace(/^https?:\/\//, "");
+            window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+        };
+        
+        document.getElementById('close-warning').onclick = function() {
+            banner.remove();
+        };
     }
-
-    manageBanner();
 })();
 </script>
 </body>
 </html>
+
 
 
 
