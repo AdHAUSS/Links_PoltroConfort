@@ -310,80 +310,58 @@
     <!-- Simple Animation Script -->
     <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const main = document.querySelector("main");
     const banner = document.getElementById("browser-warning");
-
-    // 1. Animação de entrada
+    
+    // 1. Animação do conteúdo
+    const main = document.querySelector("main");
     if (main) {
         main.style.opacity = "0";
         main.style.transform = "translateY(20px)";
         main.style.transition = "opacity 0.8s ease, transform 0.8s ease";
-        setTimeout(() => {
-            main.style.opacity = "1";
-            main.style.transform = "translateY(0)";
-        }, 100);
+        setTimeout(() => { main.style.opacity = "1"; main.style.transform = "translateY(0)"; }, 100);
     }
 
-    // 2. FUNÇÃO DE DETECÇÃO COM DELAY (Para dar tempo ao motor do Browser)
-    function runDetection() {
+    // 2. DETECÇÃO POR COMPORTAMENTO DE MEDIA QUERY
+    function checkSamsungDark() {
         const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
         if (!isSamsung) return;
 
-        // Criamos o elemento de teste
-        const probe = document.createElement('div');
-        probe.id = "samsung-probe";
-        probe.style.cssText = "width:1px;height:1px;position:absolute;left:-999px;background-color:rgb(255,255,255);";
-        document.body.appendChild(probe);
-
-        // Esperamos 200ms para o Samsung Browser aplicar a inversão de cores
-        setTimeout(() => {
-            const computed = window.getComputedStyle(probe);
-            const colorVal = computed.backgroundColor;
-            const rgb = colorVal.match(/\d+/g);
-            
-            let isDark = false;
-
-            if (rgb && rgb.length >= 3) {
-                const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+        // No Samsung Browser, o 'prefers-color-scheme: dark' é disparado 
+        // fielmente quando o modo escuro do navegador está ON.
+        const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        // Função que decide se mostra o banner
+        const evaluate = (mql) => {
+            if (isSamsung && mql.matches) {
+                banner.style.display = "block";
                 
-                // Se o que era para ser BRANCO (255) estiver com menos de 200 de brilho, 
-                // é porque o modo escuro forçado o "sujou"
-                if (brightness < 200) {
-                    isDark = true;
+                // Configura o botão do Chrome
+                const btn = banner.querySelector("button");
+                if (btn) {
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        const url = window.location.href.replace(/^https?:\/\//, "");
+                        window.location.href = `intent://${url}#Intent;scheme=https;package=com.android.chrome;end`;
+                    };
                 }
-            }
-
-            // Checagem extra: Se o sistema reporta Dark Mode E o brilho caiu
-            if (isDark) {
-                showBanner();
             } else {
-                if (banner) banner.style.display = "none";
+                banner.style.display = "none";
             }
-            
-            document.body.removeChild(probe);
-        }, 200); 
+        };
+
+        // Avalia agora
+        evaluate(darkModeQuery);
+
+        // Ouve mudanças (caso o usuário mude o modo com a página aberta)
+        darkModeQuery.addEventListener('change', evaluate);
     }
 
-    function showBanner() {
-        if (banner) {
-            banner.style.display = "block";
-            const btn = banner.querySelector("button");
-            if (btn) {
-                btn.onclick = function (e) {
-                    e.preventDefault();
-                    const url = window.location.href.replace(/^https?:\/\//, "");
-                    window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
-                };
-            }
-        }
-    }
-
-    // Executa a detecção
-    runDetection();
+    checkSamsungDark();
 });
 </script>
 </body>
 </html>
+
 
 
 
