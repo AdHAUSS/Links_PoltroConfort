@@ -310,58 +310,40 @@
     <!-- Simple Animation Script -->
     <script>
      
-function isSamsungBrowser() {
-  return /SamsungBrowser/i.test(navigator.userAgent);
-}
-
 document.addEventListener("DOMContentLoaded", function () {
+    const main = document.querySelector("main");
 
-  const main = document.querySelector("main");
-
-  if (main) {
-    main.style.opacity = "0";
-    main.style.transform = "translateY(20px)";
-    main.style.transition = "opacity 0.8s ease, transform 0.8s ease";
-
-    setTimeout(function () {
-      main.style.opacity = "1";
-      main.style.transform = "translateY(0)";
-    }, 100);
-  }
-
-  if (isSamsungBrowser()) {
-
-    const banner = document.getElementById("browser-warning");
-
-    if (banner) {
-      banner.style.display = "block";
+    // Animação de entrada do conteúdo
+    if (main) {
+        main.style.opacity = "0";
+        main.style.transform = "translateY(20px)";
+        main.style.transition = "opacity 0.8s ease, transform 0.8s ease";
+        setTimeout(() => {
+            main.style.opacity = "1";
+            main.style.transform = "translateY(0)";
+        }, 100);
     }
 
-    const url = window.location.href;
+    // LÓGICA DO AVISO: Samsung Browser + Dark Mode
+    const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    const chromeIntent =
-      "intent://" +
-      url.replace(/^https?:\/\//, "") +
-      "#Intent;scheme=https;package=com.android.chrome;end";
+    if (isSamsung && isDarkMode) {
+        const banner = document.getElementById("browser-warning");
+        if (banner) {
+            banner.style.display = "block";
+        }
 
-    const button = document.querySelector("#browser-warning button");
-
-    if (button) {
-    button.addEventListener("click", function () {
- const chromeIntent =
-    "intent://" +
-    window.location.href.replace(/^https?:\/\//, "") +
-    "#Intent;scheme=https;package=com.android.chrome;end";
-
-  window.open(chromeIntent, "_self");
-
-    });
-  }
-
-}
-
+        const button = document.querySelector("#browser-warning button");
+        if (button) {
+            button.addEventListener("click", function () {
+                const urlSemProtocolo = window.location.href.replace(/^https?:\/\//, "");
+                const chromeIntent = `intent://${urlSemProtocolo}#Intent;scheme=https;package=com.android.chrome;end`;
+                window.location.href = chromeIntent;
+            });
+        }
+    }
 });
-
 </script>
 </body>
 </html>
