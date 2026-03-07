@@ -177,21 +177,38 @@
     z-index: 9999;
 }
 
-/* A CORREÇÃO MÁGICA: Deve vir por último no CSS */
+/* --- BLOCO FINAL DE CORREÇÃO EXCLUSIVA SAMSUNG --- */
+
+/* 1. Fundo e Texto */
 html.samsung-fix body {
-    background: #0f172a !important; /* Azul marinho profundo que o Samsung aceita */
+    background: #0f172a !important; 
     background-image: none !important;
+    color: #ffffff !important;
 }
 
+/* 2. Cards no modo Dark Samsung */
 html.samsung-fix .neomorph-card {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 10px 10px 20px rgba(0,0,0,0.5) !important;
 }
 
-html.samsung-fix .text-white, 
-html.samsung-fix h1, 
-html.samsung-fix h2 {
-    color: #ffffff !important;
+/* 3. DOURADO EXCLUSIVO PARA SAMSUNG (Evita o Vermelho) */
+html.samsung-fix .gold-border-glow {
+    /* Usamos um dourado mais "fechado/bronze" que o Samsung não inverte */
+    background: linear-gradient(45deg, #C5A028, #D4AF37, #C5A028) !important;
+    opacity: 0.3 !important;
+    filter: blur(5px) !important;
+}
+
+html.samsung-fix .gold-border-container .relative {
+    /* Ajusta a bordinha ao redor da foto */
+    background: linear-gradient(to bottom right, #D4AF37, #996515) !important;
+}
+
+/* 4. Garante que o ícone do Chrome no banner não suma */
+html.samsung-fix #browser-warning {
+    display: none !important; /* Esconde o banner se a correção funcionou */
 }
     </style>
 </head>
@@ -348,6 +365,7 @@ html.samsung-fix h2 {
 </script>
 </body>
 </html>
+
 
 
 
