@@ -324,52 +324,47 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 100);
     }
 
-    // 2. FUNÇÃO DE DETECÇÃO ULTRA PRECISA
-    function shouldShowWarning() {
-        const ua = navigator.userAgent;
-        const isSamsung = /SamsungBrowser/i.test(ua);
+    // 2. DETECÇÃO POR ELEMENTO DE TESTE (À prova de falhas)
+    function checkInversion() {
+        const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
         if (!isSamsung) return false;
 
-        // Pegamos a cor de fundo real que o navegador está exibindo
-        const bodyStyle = window.getComputedStyle(document.body);
-        const rgb = bodyStyle.backgroundColor.match(/\d+/g);
+        // Criamos um quadrado branco invisível
+        const probe = document.createElement('div');
+        probe.style.cssText = "width:1px;height:1px;position:absolute;left:-999px;top:-999px;background-color:rgb(255,255,255);color:rgb(0,0,0);";
+        document.body.appendChild(probe);
+
+        // Lemos como o Samsung Browser está renderizando esse branco
+        const computed = window.getComputedStyle(probe);
+        const colorVal = computed.backgroundColor; // Ex: "rgb(255, 255, 255)" ou "rgb(30, 30, 30)"
         
-        // Verificamos se o navegador está forçando cores escuras (Dark Web Pages)
-        let isActuallyDark = false;
+        document.body.removeChild(probe);
+
+        // Extraímos os números do RGB
+        const rgb = colorVal.match(/\d+/g);
         if (rgb && rgb.length >= 3) {
             const r = parseInt(rgb[0]);
             const g = parseInt(rgb[1]);
             const b = parseInt(rgb[2]);
-            
-            // Cálculo de brilho
             const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-            
-            // DEBUG: Se você abrir o console do navegador, verá esses números
-            console.log("Samsung Browser Detectado. Brilho atual:", brightness);
 
-            // O seu azul original (#6F8FAF) tem brilho aproximado de 136.
-            // Se o brilho cair para menos de 80, ele com certeza inverteu as cores.
-            if (brightness < 60) {
-                isActuallyDark = true;
-            }
+            // Se o brilho do que DEVERIA ser branco for menor que 150, 
+            // o navegador está forçando o Modo Escuro.
+            return brightness < 150;
         }
-
-        // Importante: No Samsung, o 'prefers-color-scheme' pode vir do sistema Android,
-        // mas o que estraga seu site é o "Dark Web Pages" (inversão forçada).
-        // Por isso, vamos focar na inversão real da cor (isActuallyDark).
-        return isSamsung && isActuallyDark;
+        return false;
     }
 
     // 3. APLICAÇÃO
-    if (shouldShowWarning()) {
+    if (checkInversion()) {
         if (banner) {
             banner.style.display = "block";
             const btn = banner.querySelector("button");
             if (btn) {
                 btn.onclick = function (e) {
                     e.preventDefault();
-                    const urlSemProtocolo = window.location.href.replace(/^https?:\/\//, "");
-                    window.location.href = "intent://" + urlSemProtocolo + "#Intent;scheme=https;package=com.android.chrome;end";
+                    const url = window.location.href.replace(/^https?:\/\//, "");
+                    window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
                 };
             }
         }
@@ -380,6 +375,7 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 </body>
 </html>
+
 
 
 
