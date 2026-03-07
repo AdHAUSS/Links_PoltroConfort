@@ -194,11 +194,14 @@
 </head>
 <body class="min-h-screen flex flex-col items-center py-12 px-4">
 
-<div id="browser-warning" style="display:block; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 420px; background: #111; color: #fff; padding: 16px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: Arial, sans-serif; text-align: center; z-index: 9999;">
-  ⚠️ Detectamos uma possível inversão de cores. Para uma melhor visualização, recomendamos o Google Chrome.
-  <br>
-  <button style="margin-top: 10px; padding: 10px 16px; border: none; border-radius: 8px; background: #4285F4; color: white; font-weight: bold; cursor: pointer;">Abrir no Chrome</button>
-  <button id="close-warning" style="background:transparent; color:#aaa; font-size:12px; margin-left:10px; text-decoration:underline;">Ignorar</button>
+<div id="browser-warning" style="background: #111; color: #fff; padding: 20px; text-align: center; border-bottom: 2px solid #4285F4; display: block !important;">
+  <p style="margin: 0; font-family: sans-serif; font-weight: bold;">
+    ⚠️ Cores invertidas detectadas no Samsung Browser.
+  </p>
+  <div style="margin-top: 10px;">
+    <button id="open-chrome" style="background: #4285F4; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">Abrir no Chrome</button>
+    <button id="close-warning" style="background: transparent; color: #ccc; border: none; margin-left: 15px; text-decoration: underline; cursor: pointer;">Ignorar</button>
+  </div>
 </div>
 
     <!-- Main Container -->
@@ -311,52 +314,39 @@
     <!-- Simple Animation Script -->
     <script>
 (function() {
-    // Rodar o mais rápido possível, antes mesmo do DOM completo se necessário
-    function handleWarning() {
-        const banner = document.getElementById("browser-warning");
-        const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-        const isSystemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // 1. Verificação imediata
+    const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+    const isSystemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const banner = document.getElementById('browser-warning');
 
-        // Se NÃO for Samsung OU se o sistema estiver em modo CLARO, removemos o aviso
-        if (!isSamsung || !isSystemDark) {
-            if (banner) banner.remove(); 
-            return;
-        }
-
-        // Se chegou aqui, é Samsung + Dark Mode. Configuramos os botões:
-        const btnChrome = banner.querySelector("button");
-        if (btnChrome) {
-            btnChrome.onclick = function() {
+    // Se NÃO for o cenário problemático, deletamos o aviso antes do usuário ver
+    if (!isSamsung || !isSystemDark) {
+        if (banner) banner.style.display = 'none';
+    } else {
+        // Se for o cenário, configuramos os botões
+        window.onload = function() {
+            document.getElementById('open-chrome').onclick = function() {
                 const url = window.location.href.replace(/^https?:\/\//, "");
                 window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
             };
-        }
-
-        const btnClose = document.getElementById("close-warning");
-        if (btnClose) {
-            btnClose.onclick = function() {
-                banner.remove();
+            document.getElementById('close-warning').onclick = function() {
+                banner.style.display = 'none';
             };
-        }
+        };
     }
-
-    // Executa assim que o script carregar e tenta novamente no DOMContentLoaded
-    handleWarning();
-    window.addEventListener('DOMContentLoaded', handleWarning);
 })();
 
-// Sua animação do conteúdo (separada para não interferir)
-document.addEventListener("DOMContentLoaded", function() {
-    const main = document.querySelector("main");
+// Sua animação de fade-in
+window.addEventListener('load', function() {
+    const main = document.querySelector('main');
     if (main) {
-        main.style.opacity = "0";
-        main.style.transition = "opacity 0.8s ease";
-        setTimeout(() => { main.style.opacity = "1"; }, 100);
+        main.style.opacity = '1';
     }
 });
 </script>
 </body>
 </html>
+
 
 
 
