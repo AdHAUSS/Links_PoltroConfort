@@ -54,7 +54,7 @@
         html, body {
     	font-family: 'Inter', sans-serif;
    	background: radial-gradient(circle at top,#8FAECC 0%,#6F8FAF 45%,#5f7f9e 100%);
-	color-scheme: light;
+	color-scheme: light !important;
 	-webkit-font-smoothing: antialiased;
 	}
 
@@ -336,8 +336,8 @@ function samsungDarkModeAtivo() {
   const bg = window.getComputedStyle(document.body).backgroundColor;
 
   const coresPermitidas = [
-    "rgb(111, 143, 175)",
-    "rgba(111, 143, 175, 1)"
+    "rgb(6,25,55)",
+    "rgba(6,25,55, 1)"
   ];
 
   return !coresPermitidas.includes(bg);
