@@ -25,17 +25,30 @@
    	    color-scheme: light;
 	}
 
+	html {
+  	    
+	    forced-color-adjust: none;
+	}
+
 	body {
    	    padding-top: 80px;
 	    color: #ffffff !important;
-	    forced-color-adjust: ;
+	    forced-color-adjust: none;
 	}
 
 	@media (prefers-color-scheme: dark) {
   	    html, body {
       		background-color: #6F8FAF !important;
         	color: #ffffff !important;
-      }
+        }
+
+        img {
+            filter: none !important;
+        }
+	svg {
+    	    filter: none !important;
+	}
+        }
 
 
         html, body {
@@ -147,65 +160,44 @@
         }
 
 #browser-warning {
-    display: block; /* O JS decidirá se remove */
-    position: fixed;
-    top: 15px; /* Aparecer no topo como notificação push */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 92%;
-    max-width: 400px;
-    background: rgba(15, 30, 50, 0.9); /* Azul escuro translúcido */
-    backdrop-filter: blur(12px); /* Efeito de vidro */
-    -webkit-backdrop-filter: blur(12px);
-    color: #fff;
-    padding: 18px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    z-index: 10000;
-    text-align: center;
-    font-size: 13.5px;
-    line-height: 1.4;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 420px;
+  background: #111;
+  color: #fff;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  font-family: Arial, sans-serif;
+  text-align: center;
+  z-index: 9999;
 }
 
-#browser-warning b {
-    color: #FCD34D; /* Destaque em dourado para o nome Samsung */
+#browser-warning button {
+  margin-top: 10px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #4285F4;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-/* Botão principal com gradiente suave */
-#open-chrome {
-    margin-top: 12px;
-    background: linear-gradient(90deg, #4285F4, #34a853);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 13px;
-    cursor: pointer;
-    width: 100%;
-    transition: transform 0.2s;
-}
-
-/* Botão de fechar discreto */
-#close-warning {
-    margin-top: 8px;
-    background: transparent;
-    color: rgba(255,255,255,0.6);
-    border: none;
-    font-size: 11px;
-    text-decoration: underline;
-    cursor: pointer;
+#browser-warning button:hover {
+  opacity: 0.9;
 }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-12 px-4">
 
 <div id="browser-warning" style="display:none;">
-    ✨ <b>Dica de Visualização</b><br>
-    Identificamos que o <b>Samsung Browser</b> pode ocultar detalhes do nosso design. Para uma experiência premium, prefira o Chrome.
-    <button id="open-chrome">ABRIR NO GOOGLE CHROME</button>
-    <button id="close-warning">Continuar aqui mesmo</button>
+  Para melhor visualização deste site, recomendamos abrir no Google Chrome.
+  <br>
+  <button>Abrir no Chrome</button>
 </div>
 
     <!-- Main Container -->
@@ -317,52 +309,60 @@
 
     <!-- Simple Animation Script -->
     <script>
-(function() {
-    // Função para gerenciar o banner
-    function manageBanner() {
-       if (!isSamsung) {
-    banner.remove();
-    return;
-} else {
-    // Se for Samsung, aí sim mostramos o card elegante
-    banner.style.display = 'block';
-    
-    // Pequena animação de entrada
-    banner.animate([
-        { transform: 'translate(-50%, -20px)', opacity: 0 },
-        { transform: 'translate(-50%, 0)', opacity: 1 }
-    ], { duration: 400, easing: 'ease-out' });
-}
+ document.addEventListener("DOMContentLoaded", function () {
+    const main = document.querySelector("main");
+    const banner = document.getElementById("browser-warning");
 
-        // Se for Samsung, configuramos os botões
-        const btnChrome = document.getElementById('open-chrome');
-        const btnClose = document.getElementById('close-warning');
-
-        if (btnChrome) {
-            btnChrome.onclick = function() {
-                const url = window.location.href.replace(/^https?:\/\//, "");
-                window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
-            };
-        }
-
-        if (btnClose) {
-            btnClose.onclick = function() {
-                banner.remove();
-            };
-        }
+    // 1. Animação de entrada
+    if (main) {
+        main.style.opacity = "0";
+        main.style.transform = "translateY(20px)";
+        main.style.transition = "opacity 0.8s ease, transform 0.8s ease";
+        setTimeout(() => {
+            main.style.opacity = "1";
+            main.style.transform = "translateY(0)";
+        }, 100);
     }
 
-    // Tenta rodar agora
-    manageBanner();
-    // Tenta rodar de novo quando o DOM carregar (garantia)
-    window.addEventListener('DOMContentLoaded', manageBanner);
-})();
+    // 2. FUNÇÃO DE DETECÇÃO ROBUSTA
+    function shouldShowWarning() {
+        const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+        if (!isSamsung) return false;
 
-// Sua animação do conteúdo
-document.addEventListener("DOMContentLoaded", function() {
-    const main = document.querySelector("main");
-    if (main) {
-        main.style.opacity = "1"; // Garante visibilidade
+        // Verifica se o sistema reporta Dark Mode (Media Query)
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        // Verifica se o Navegador forçou uma cor de fundo diferente da sua (6F8FAF)
+        // O Samsung Browser no modo escuro forçado raramente mantém o azul original
+        const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+        
+        // Cor original em RGB: rgb(111, 143, 175)
+        const isOriginalBlue = bodyBg.includes("111") && bodyBg.includes("143");
+
+        // Se é Samsung E (o sistema diz que é dark OU o azul sumiu do fundo)
+        return isSamsung && (prefersDark || !isOriginalBlue);
+    }
+
+    // 3. Aplica a lógica
+    if (shouldShowWarning()) {
+        if (banner) {
+            banner.style.display = "block";
+            
+            // Força o estilo do banner para garantir que ele apareça legível 
+            // mesmo com a inversão do Samsung
+            banner.style.backgroundColor = "#111111"; 
+            banner.style.color = "#ffffff";
+
+            const btn = banner.querySelector("button");
+            if (btn) {
+                btn.onclick = function (e) {
+                    e.preventDefault();
+                    const url = window.location.href.replace(/^https?:\/\//, "");
+                    const chromeIntent = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+                    window.location.href = chromeIntent;
+                };
+            }
+        }
     }
 });
 </script>
