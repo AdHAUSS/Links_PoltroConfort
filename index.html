@@ -191,7 +191,7 @@ cursor: pointer;
 }
 
 #chrome-recommendation button:hover{
-opacity:.9;
+opacity:0.9;
 }
 
 #chrome-recommendation .close-btn{
@@ -324,13 +324,18 @@ transform:translate(-50%,0);
 
     <!-- Simple Animation Script -->
     <script>
+
 document.addEventListener("DOMContentLoaded", function () {
 
-function isSamsungBrowser() {
-  return /SamsungBrowser/i.test(navigator.userAgent);
-}
+   function isSamsungBrowser() {
+    return navigator.userAgent.includes("SamsungBrowser");
+  }
 
-if (isSamsungBrowser()) {
+  function isDarkMode() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  if (isSamsungBrowser() && isDarkMode()) {
 
   const banner = document.createElement("div");
 
@@ -388,6 +393,7 @@ if (isSamsungBrowser()) {
 }
 
 });
+
 </script>
 </body>
 </html>
