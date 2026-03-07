@@ -321,32 +321,27 @@
 
         const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
         
-        // Se não for Samsung, removemos logo de cara
         if (!isSamsung) {
             banner.remove();
             return;
         }
 
-        // Se for Samsung, vamos checar se a página REALMENTE está escura (invertida)
-        // Criamos um atraso de 300ms para o navegador aplicar a inversão
+        // Aguardamos o navegador aplicar os filtros visuais
         setTimeout(() => {
-            const bodyStyle = window.getComputedStyle(document.body);
-            const rgb = bodyStyle.backgroundColor.match(/\d+/g);
-            
-            if (rgb && rgb.length >= 3) {
-                // Cálculo de luminosidade (0-255)
-                const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
-
-                // O seu azul original (#6F8FAF) tem brilho ~136. 
-                // No modo escuro forçado, ele cai para menos de 60.
-                // Se o brilho for maior que 80, significa que o modo claro está ativo.
-                if (brightness > 80) {
+            // Pegamos a sua logo principal (a primeira imagem do site)
+            const logo = document.querySelector('img');
+            if (logo) {
+                const filters = window.getComputedStyle(logo).filter;
+                
+                // No Modo Claro, o filtro é "none". 
+                // No Modo Escuro forçado, o Samsung Browser injeta filtros como "invert" ou "brightness"
+                if (filters === 'none' || filters === '' || filters === 'all') {
                     banner.remove();
                     return;
                 }
             }
 
-            // Se chegou aqui, é Samsung e está Escuro. Configuramos os botões:
+            // Configuração dos botões caso o banner permaneça (Modo Escuro)
             const btnChrome = document.getElementById('open-chrome');
             const btnClose = document.getElementById('close-warning');
 
@@ -356,26 +351,18 @@
                     window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
                 };
             }
-
             if (btnClose) {
-                btnClose.onclick = function() {
-                    banner.remove();
-                };
+                btnClose.onclick = function() { banner.remove(); };
             }
-        }, 300); 
+        }, 400); // Delay levemente maior para garantir o processamento
     }
 
     manageBanner();
 })();
-
-// Garante que o conteúdo apareça
-document.addEventListener("DOMContentLoaded", function() {
-    const main = document.querySelector("main");
-    if (main) main.style.opacity = "1";
-});
 </script>
 </body>
 </html>
+
 
 
 
