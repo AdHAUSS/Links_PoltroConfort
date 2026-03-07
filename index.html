@@ -159,58 +159,39 @@
 	    justify-content:center;
         }
 
-/* Estilo especial para Samsung: Cores que não sofrem com a inversão agressiva */
+
+/* Coloque isso no final do seu bloco <style> */
+#browser-warning {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 420px;
+    background: #111;
+    color: #fff;
+    padding: 16px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    text-align: center;
+    z-index: 9999;
+}
+
+/* A CORREÇÃO MÁGICA: Deve vir por último no CSS */
 html.samsung-fix body {
-    background: #1a2a3a !important; /* Um azul marinho bem escuro, quase preto */
-    color: #ffffff !important;
+    background: #0f172a !important; /* Azul marinho profundo que o Samsung aceita */
+    background-image: none !important;
 }
 
 html.samsung-fix .neomorph-card {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    box-shadow: 10px 10px 20px rgba(0,0,0,0.5), -5px -5px 15px rgba(255,255,255,0.02) !important;
 }
 
-html.samsung-fix .text-blue-100, 
-html.samsung-fix .text-gray-200 {
-    color: #cbd5e1 !important; /* Cinza claro para leitura perfeita */
-}
-
-/* Esconde o banner de aviso se estivermos usando a versão 'corrigida' */
-html.samsung-fix #browser-warning {
-    display: none !important;
-}
-		
-#browser-warning {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 420px;
-  background: #111;
-  color: #fff;
-  padding: 16px;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  font-family: Arial, sans-serif;
-  text-align: center;
-  z-index: 9999;
-}
-
-#browser-warning button {
-  margin-top: 10px;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  background: #4285F4;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-#browser-warning button:hover {
-  opacity: 0.9;
+html.samsung-fix .text-white, 
+html.samsung-fix h1, 
+html.samsung-fix h2 {
+    color: #ffffff !important;
 }
     </style>
 </head>
@@ -335,34 +316,27 @@ html.samsung-fix #browser-warning {
     const main = document.querySelector("main");
     const htmlElement = document.documentElement;
     
-    // 1. Identifica se é Samsung e se está em Modo Escuro
     const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    // 2. Aplica a "Versão Dark Elegante" se for Samsung no Escuro
+    // Se for Samsung no Modo Escuro -> Aplica o visual alternativo e NÃO mostra o banner
     if (isSamsung && prefersDark) {
         htmlElement.classList.add('samsung-fix');
-        console.log("Modo de compatibilidade Samsung Dark ativado.");
-    } else if (isSamsung && !prefersDark) {
-        // Se for Samsung mas estiver no MODO CLARO, 
-        // o banner de aviso ainda pode ser útil (opcional)
+    } 
+    // Se for Samsung no Modo Claro -> Mostra o banner de recomendação
+    else if (isSamsung && !prefersDark) {
         const banner = document.getElementById("browser-warning");
         if (banner) banner.style.display = "block";
     }
 
-    // 3. Animação de entrada do conteúdo (seu padrão)
+    // Animação de entrada
     if (main) {
-        main.style.opacity = "0";
-        main.style.transform = "translateY(20px)";
-        main.style.transition = "opacity 0.8s ease, transform 0.8s ease";
-        setTimeout(() => {
-            main.style.opacity = "1";
-            main.style.transform = "translateY(0)";
-        }, 100);
+        main.style.opacity = "1";
+        main.style.transform = "translateY(0)";
     }
 
-    // 4. Configuração do botão do Chrome (caso o banner apareça no modo claro)
-    const btnChrome = document.getElementById("open-chrome") || document.querySelector("#browser-warning button");
+    // Botão do Chrome
+    const btnChrome = document.querySelector("#browser-warning button");
     if (btnChrome) {
         btnChrome.onclick = function (e) {
             e.preventDefault();
@@ -374,5 +348,6 @@ html.samsung-fix #browser-warning {
 </script>
 </body>
 </html>
+
 
 
