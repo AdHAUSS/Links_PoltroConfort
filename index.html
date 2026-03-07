@@ -187,38 +187,74 @@
   cursor: pointer;
 }
 
-/* 1. Força o fundo e anula gradientes nativos do Tailwind no Samsung Dark */
+/* 1. Alvo Direto: Remove o vermelho e o gradiente da logo no Samsung */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    /* Esta regra atinge o motor do Samsung de forma mais estável */
+    _:-webkit-full-screen, .gold-border-container div {
+        background: #C5A028 !important; /* Dourado sólido (O Samsung não inverte cor sólida escura) */
+        background-image: none !important;
+        box-shadow: none !important;
+    }
+
+    _:-webkit-full-screen, .gold-border-glow {
+        display: none !important; /* Remove o brilho que vira mancha vermelha */
+    }
+}
+
+/* 2. Correção via Classe (Garante que o fundo fique Azul Marinho e não Preto Lavado) */
 html.samsung-fix body {
-    background: #0f172a !important; 
+    background-color: #0b1120 !important;
     background-image: none !important;
 }
 
-/* 2. O PULO DO GATO: Remove o gradiente inline da borda da foto que o Samsung inverte */
-html.samsung-fix .gold-border-container div[class*="bg-gradient"] {
-    background: #D4AF37 !important; /* Cor sólida de Ouro Metálico (não inverte) */
+html.samsung-fix .gold-border-container .relative {
+    background: #C5A028 !important; /* Força o dourado sólido na borda da foto */
     background-image: none !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
 }
 
-/* 3. Brilho externo (Glow) mais escuro para não virar mancha vermelha */
 html.samsung-fix .gold-border-glow {
-    background: #996515 !important; /* Bronze escuro */
-    opacity: 0.2 !important;
-    filter: blur(8px) !important;
+    display: none !important; /* O brilho externo é o que causa o maior erro visual */
 }
 
-/* 4. Garante que os títulos não sofram mutação de cor */
-html.samsung-fix h1, 
-html.samsung-fix h2, 
-html.samsung-fix p {
-    color: #ffffff !important;
-    filter: none !important;
+/* 3. Estilo do Banner (Para ele ficar elegante enquanto não resolvemos) */
+#browser-warning {
+    background: rgba(0, 0, 0, 0.9) !important;
+    border: 1px solid #1e293b;
+    backdrop-filter: blur(10px);
 }
+Por que o banner apareceu se tentamos esconder?
+No seu script atual, ele está configurado para:
 
-/* 5. Ajuste nos Cards para o Samsung não 'lavar' o fundo */
-html.samsung-fix .neomorph-card {
-    background: rgba(30, 41, 59, 0.7) !important; /* Slate-800 com opacidade */
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
+Se for Samsung + Dark: Adiciona a classe (mas você não tinha mandado esconder o banner aqui).
+
+Se for Samsung + Light: Mostra o banner.
+
+Vamos ajustar o Script para ele ser mais inteligente:
+
+JavaScript
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const htmlElement = document.documentElement;
+    const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (isSamsung) {
+        // SEMPRE aplica a correção de cores no Samsung para prevenir erros
+        htmlElement.classList.add('samsung-fix');
+        
+        // SÓ mostra o banner se o usuário NÃO estiver no modo escuro 
+        // ou se você realmente quiser que ele mude para o Chrome
+        const banner = document.getElementById("browser-warning");
+        if (banner) {
+            // Se você quiser esconder o banner totalmente no modo dark, descomente a linha abaixo:
+            // if (prefersDark) banner.style.display = "none"; else 
+            banner.style.display = "block";
+        }
+    }
+    
+    // ... restante do código de animação ...
+});
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-12 px-4">
@@ -374,6 +410,7 @@ html.samsung-fix .neomorph-card {
 </script>
 </body>
 </html>
+
 
 
 
