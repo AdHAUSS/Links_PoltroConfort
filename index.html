@@ -101,127 +101,54 @@
             color: #FCD34D; /* Yellow-300 */
         }
 
-        /* Animated Golden Border */
-        .gold-border-container {
-            position: relative;
-            display: inline-block;
-	    animation: float 4s ease-in-out infinite;
-	 }
-
-     	   @keyframes float{
-	   0%{ transform: translateY(0px);}
-	   50%{ transform: translateY(-6px);}
-	   100%{ transform: translateY(0px);}
-        }
-
-        .gold-border-glow {
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #FCD34D, #F59E0B, #FCD34D);
-            opacity: 0.45;
-            filter: blur(2px);
-            animation: pulse-gold 2s infinite;
-        }
-
-        @keyframes pulse-gold {
-            0% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
-            100% { opacity: 0.5; transform: scale(1); }
-        }
-        
-        @keyframes fadeUp {
-   	    from {
-        	opacity: 0;
-       		transform: translateY(30px);
-   	    }
-   	    to {
-       		opacity: 1;
-        	transform: translateY(0);
-   	    }
-        }
-
-        /* Utility for image placement */
-        .card-image-container {
-            flex-shrink: 0;
-            width: 75px;
-            height: 75px;
-            border-radius: 50%;
-            overflow: hidden;
-
-	    background:#5f7f9e;
-
-	    border: 2px solid rgba(255,255,255,0.15);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-
-	    display:flex;
-	    align-items:center;
-	    justify-content:center;
-        }
-
-
-/* Coloque isso no final do seu bloco <style> */
-#browser-warning {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 420px;
-    background: #111;
-    color: #fff;
-    padding: 16px;
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    text-align: center;
-    z-index: 9999;
-}
-#browser-warning button {
-  margin-top: 10px;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  background: #4285F4;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
+       /* --- ESTILO ORIGINAL (CHROME/SAFARI) --- */
+.gold-border-container {
+    position: relative;
+    display: inline-block;
+    animation: float 4s ease-in-out infinite;
 }
 
-/* 1. Alvo Direto: Remove o vermelho e o gradiente da logo no Samsung */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    /* Esta regra atinge o motor do Samsung de forma mais estável */
-    _:-webkit-full-screen, .gold-border-container div {
-        background: #C5A028 !important; /* Dourado sólido (O Samsung não inverte cor sólida escura) */
-        background-image: none !important;
-        box-shadow: none !important;
-    }
-
-    _:-webkit-full-screen, .gold-border-glow {
-        display: none !important; /* Remove o brilho que vira mancha vermelha */
-    }
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
 }
 
-/* 2. Correção via Classe (Garante que o fundo fique Azul Marinho e não Preto Lavado) */
-html.samsung-fix body {
-    background-color: #0b1120 !important;
-    background-image: none !important;
+/* O brilho que você gosta */
+.gold-border-glow {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #FCD34D, #F59E0B, #FCD34D);
+    opacity: 0.45;
+    filter: blur(2px);
+    animation: pulse-gold 2s infinite;
 }
 
-html.samsung-fix .gold-border-container .relative {
-    background: #C5A028 !important; /* Força o dourado sólido na borda da foto */
-    background-image: none !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
+@keyframes pulse-gold {
+    0% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+    100% { opacity: 0.5; transform: scale(1); }
 }
 
+/* --- CORREÇÃO EXCLUSIVA SAMSUNG (A MARRETA) --- */
+/* Quando a classe samsung-fix entra, ela mata o que causa o vermelho */
 html.samsung-fix .gold-border-glow {
-    display: none !important; /* O brilho externo é o que causa o maior erro visual */
+    /* Em vez de gradiente, usamos uma cor sólida de 'ouro velho' */
+    /* O Samsung não inverte cores sólidas menos saturadas */
+    background: #b8860b !important; 
+    filter: blur(6px) !important;
+    opacity: 0.3 !important;
 }
 
-/* 3. Estilo do Banner (Para ele ficar elegante enquanto não resolvemos) */
-#browser-warning {
-    background: rgba(0, 0, 0, 0.9) !important;
-    border: 1px solid #1e293b;
-    backdrop-filter: blur(10px);
+html.samsung-fix .gold-border-container div[class*="bg-gradient"] {
+    background: #b8860b !important; /* Remove o gradiente inline da borda */
+    background-image: none !important;
+}
+
+html.samsung-fix body {
+    /* Mantém o seu azul original, mas força para o Samsung não escurecer demais */
+    background: #6F8FAF !important; 
 }
     </style>
 </head>
@@ -345,27 +272,42 @@ html.samsung-fix .gold-border-glow {
 document.addEventListener("DOMContentLoaded", function () {
     const htmlElement = document.documentElement;
     const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
+    
+    // 1. Aplica a correção se for Samsung
     if (isSamsung) {
-        // SEMPRE aplica a correção de cores no Samsung para prevenir erros
         htmlElement.classList.add('samsung-fix');
         
-        // SÓ mostra o banner se o usuário NÃO estiver no modo escuro 
-        // ou se você realmente quiser que ele mude para o Chrome
+        // Mostra o banner apenas no Samsung
         const banner = document.getElementById("browser-warning");
         if (banner) {
-            // Se você quiser esconder o banner totalmente no modo dark, descomente a linha abaixo:
-            // if (prefersDark) banner.style.display = "none"; else 
             banner.style.display = "block";
         }
     }
-    
-    // ... restante do código de animação ...
+
+    // 2. CORREÇÃO DO BOTÃO (Link Direto)
+    const btnChrome = document.querySelector("#browser-warning button");
+    if (btnChrome) {
+        btnChrome.addEventListener("click", function() {
+            // Tenta abrir no Chrome via Intent (Android padrão)
+            const url = window.location.href.replace(/^https?:\/\//, "");
+            window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+        });
+    }
+
+    // 3. Animação de Entrada
+    const main = document.querySelector("main");
+    if (main) {
+        main.style.opacity = "0";
+        setTimeout(() => {
+            main.style.transition = "opacity 0.8s ease";
+            main.style.opacity = "1";
+        }, 100);
+    }
 });
 </script>
 </body>
 </html>
+
 
 
 
