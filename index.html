@@ -332,15 +332,7 @@ function isSamsungBrowser() {
 }
 
 function samsungDarkModeAtivo() {
-
-  const bg = window.getComputedStyle(document.body).backgroundColor;
-
-  const coresPermitidas = [
-    "rgb(111, 143, 175)",
-    "rgba(111, 143, 175, 1)"
-  ];
-
-  return !coresPermitidas.includes(bg);
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
 if (isSamsungBrowser() && samsungDarkModeAtivo()) {
@@ -372,7 +364,7 @@ if (isSamsungBrowser() && samsungDarkModeAtivo()) {
   <div style="flex:1;line-height:1.3">
     <strong style="font-size:14px">Melhor visualização no Chrome</strong><br>
     <span style="font-size:12px;opacity:.8">
-    O navegador Samsung pode alterar as cores do site
+    O navegador Samsung altera as cores no modo escuro
     </span>
   </div>
 
