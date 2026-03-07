@@ -158,51 +158,58 @@
 	    align-items:center;
 	    justify-content:center;
         }
-#chrome-banner{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-background:linear-gradient(135deg,#0f172a,#1e3a8a);
-color:white;
-padding:14px 16px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:12px;
-z-index:9999;
-box-shadow:0 6px 20px rgba(0,0,0,0.35);
-animation:slideDown 0.5s ease;
+#chrome-recommendation {
+position: fixed;
+bottom: 20px;
+left: 50%;
+transform: translateX(-50%);
+background: rgba(15,23,42,0.85);
+backdrop-filter: blur(10px);
+border: 1px solid rgba(255,255,255,0.12);
+border-radius: 14px;
+padding: 14px 16px;
+display: flex;
+align-items: center;
+gap: 14px;
+color: white;
+font-size: 14px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+z-index: 9999;
+animation: fadeUpBanner .5s ease;
+max-width: 420px;
+width: calc(100% - 40px);
 }
 
-#chrome-banner strong{
-font-size:14px;
+#chrome-recommendation button {
+background: #4285F4;
+border: none;
+padding: 8px 14px;
+border-radius: 8px;
+color: white;
+font-weight: 600;
+cursor: pointer;
 }
 
-#chrome-btn{
-background:linear-gradient(135deg,#4285F4,#2563eb);
-border:none;
-color:white;
-padding:10px 16px;
-border-radius:10px;
-font-weight:600;
-cursor:pointer;
-animation:pulse 1.8s infinite;
+#chrome-recommendation button:hover{
+opacity:.9;
 }
 
-#chrome-btn:hover{
-transform:scale(1.05);
+#chrome-recommendation .close-btn{
+background: transparent;
+font-size:18px;
+padding:0 4px;
+opacity:.7;
 }
 
-@keyframes slideDown{
-from{transform:translateY(-100%);}
-to{transform:translateY(0);}
+@keyframes fadeUpBanner{
+from{
+opacity:0;
+transform:translate(-50%,20px);
 }
-
-@keyframes pulse{
-0%{box-shadow:0 0 0 0 rgba(66,133,244,0.7);}
-70%{box-shadow:0 0 0 10px rgba(66,133,244,0);}
-100%{box-shadow:0 0 0 0 rgba(66,133,244,0);}
+to{
+opacity:1;
+transform:translate(-50%,0);
+}
 }
     </style>
 </head>
@@ -318,50 +325,82 @@ to{transform:translateY(0);}
     <!-- Simple Animation Script -->
     <script>
      
-document.addEventListener("DOMContentLoaded", function () {
-
-function isSamsungBrowser() {
-  return /SamsungBrowser/i.test(navigator.userAgent);
+function isSamsungBrowser(){
+return /SamsungBrowser/i.test(navigator.userAgent);
 }
 
-function samsungDarkModeAtivo() {
+function samsungForcandoDarkMode(){
 
-  const bg = window.getComputedStyle(document.body).backgroundColor;
+const el = document.createElement("div");
+el.style.background = "#ffffff";
+el.style.color = "#000000";
+el.style.position = "absolute";
+el.style.opacity = "0";
+el.style.pointerEvents = "none";
 
-  const coresPermitidas = [
-    "rgb(111, 143, 175)",
-    "rgba(111, 143, 175, 1)"
-  ];
+document.body.appendChild(el);
 
-  return !coresPermitidas.includes(bg);
+const style = window.getComputedStyle(el);
+const bg = style.backgroundColor;
+const color = style.color;
+
+document.body.removeChild(el);
+
+/* se o navegador inverter cores, significa dark mode forçado */
+if(bg !== "rgb(255, 255, 255)" || color !== "rgb(0, 0, 0)"){
+return true;
 }
 
-if (isSamsungBrowser() && samsungDarkModeAtivo()) {
+return false;
+}
 
-  const banner = document.createElement("div");
+document.addEventListener("DOMContentLoaded",function(){
 
-  banner.id="chrome-banner";
+if(isSamsungBrowser() && samsungForcandoDarkMode()){
+
+const banner=document.createElement("div");
+
+banner.id="chrome-recommendation";
 
 banner.innerHTML=`
-<strong>⚠ Para visualizar corretamente, abra no Chrome</strong>
-<button id="chrome-btn">Abrir no Chrome</button>
+<div style="flex:1">
+<strong>Melhor visualização no Chrome</strong><br>
+<span style="font-size:12px;opacity:.8">
+O Samsung Browser altera automaticamente as cores do site
+</span>
+</div>
+
+<button id="openChromeBtn">
+Abrir no Chrome
+</button>
+
+<button class="close-btn" id="closeBanner">
+×
+</button>
 `;
 
 document.body.appendChild(banner);
-  document.getElementById("openChrome").addEventListener("click", function () {
 
-    const chromeIntent =
-    "intent://" +
-    window.location.href.replace(/^https?:\/\//, "") +
-    "#Intent;scheme=https;package=com.android.chrome;end";
+document.getElementById("closeBanner").onclick=function(){
+banner.remove();
+};
 
-    window.location.href = chromeIntent;
+document.getElementById("openChromeBtn").onclick=function(){
 
-  });
+const url=window.location.href;
+
+const chromeIntent=
+"intent://"+
+url.replace(/^https?:\/\//,"")+
+"#Intent;scheme=https;package=com.android.chrome;end";
+
+window.location.href=chromeIntent;
+
+};
+
 }
 
 });
-
 </script>
 </body>
 </html>
