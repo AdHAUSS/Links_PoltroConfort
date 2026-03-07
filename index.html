@@ -309,11 +309,11 @@
 
     <!-- Simple Animation Script -->
     <script>
-     
-document.addEventListener("DOMContentLoaded", function () {
+ document.addEventListener("DOMContentLoaded", function () {
     const main = document.querySelector("main");
+    const banner = document.getElementById("browser-warning");
 
-    // 1. Animação de entrada (seu código original)
+    // 1. Animação de entrada
     if (main) {
         main.style.opacity = "0";
         main.style.transform = "translateY(20px)";
@@ -324,43 +324,42 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 100);
     }
 
-    // 2. FUNÇÃO DE DETECÇÃO DE INVERSÃO FORÇADA
-    function isSamsungDarkForced() {
+    // 2. FUNÇÃO DE DETECÇÃO ROBUSTA
+    function shouldShowWarning() {
         const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
         if (!isSamsung) return false;
 
-        // Criamos um elemento de teste para ver se o browser inverte cores
-        const testDiv = document.createElement('div');
-        testDiv.style.cssText = "background-color: rgb(255, 255, 255); color: rgb(0, 0, 0); position: absolute; left: -9999px; visibility: hidden;";
-        document.body.appendChild(testDiv);
-
-        const computedStyle = window.getComputedStyle(testDiv);
-        const bgColor = computedStyle.backgroundColor;
-        
-        // Se o fundo for branco (255, 255, 255) mas o browser ler algo escuro, 
-        // significa que ele está forçando a inversão.
-        const isInverted = bgColor !== 'rgb(255, 255, 255)' && bgColor !== '#ffffff';
-        
-        document.body.removeChild(testDiv);
-        
-        // Também checamos o media query padrão por segurança
+        // Verifica se o sistema reporta Dark Mode (Media Query)
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        return isSamsung && (isInverted || prefersDark);
+        // Verifica se o Navegador forçou uma cor de fundo diferente da sua (6F8FAF)
+        // O Samsung Browser no modo escuro forçado raramente mantém o azul original
+        const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+        
+        // Cor original em RGB: rgb(111, 143, 175)
+        const isOriginalBlue = bodyBg.includes("111") && bodyBg.includes("143");
+
+        // Se é Samsung E (o sistema diz que é dark OU o azul sumiu do fundo)
+        return isSamsung && (prefersDark || !isOriginalBlue);
     }
 
-    // 3. Execução do Alerta
-    if (isSamsungDarkForced()) {
-        const banner = document.getElementById("browser-warning");
+    // 3. Aplica a lógica
+    if (shouldShowWarning()) {
         if (banner) {
             banner.style.display = "block";
             
-            // Ajuste no botão para forçar o Chrome Intent
+            // Força o estilo do banner para garantir que ele apareça legível 
+            // mesmo com a inversão do Samsung
+            banner.style.backgroundColor = "#111111"; 
+            banner.style.color = "#ffffff";
+
             const btn = banner.querySelector("button");
             if (btn) {
-                btn.onclick = function() {
+                btn.onclick = function (e) {
+                    e.preventDefault();
                     const url = window.location.href.replace(/^https?:\/\//, "");
-                    window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+                    const chromeIntent = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+                    window.location.href = chromeIntent;
                 };
             }
         }
