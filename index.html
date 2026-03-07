@@ -309,11 +309,11 @@
 
     <!-- Simple Animation Script -->
     <script>
- document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     const main = document.querySelector("main");
     const banner = document.getElementById("browser-warning");
 
-    // 1. Animação de entrada do conteúdo (Seu efeito original)
+    // 1. Animação de entrada
     if (main) {
         main.style.opacity = "0";
         main.style.transform = "translateY(20px)";
@@ -324,54 +324,57 @@
         }, 100);
     }
 
-    // 2. FUNÇÃO DE DETECÇÃO POR LUMINOSIDADE
+    // 2. FUNÇÃO DE DETECÇÃO ULTRA PRECISA
     function shouldShowWarning() {
-        const isSamsung = /SamsungBrowser/i.test(navigator.userAgent);
+        const ua = navigator.userAgent;
+        const isSamsung = /SamsungBrowser/i.test(ua);
         if (!isSamsung) return false;
 
-        // Verifica se o sistema reporta Dark Mode oficialmente
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-        // Pega a cor de fundo que o navegador REALMENTE está pintando agora
+        // Pegamos a cor de fundo real que o navegador está exibindo
         const bodyStyle = window.getComputedStyle(document.body);
         const rgb = bodyStyle.backgroundColor.match(/\d+/g);
         
+        // Verificamos se o navegador está forçando cores escuras (Dark Web Pages)
         let isActuallyDark = false;
         if (rgb && rgb.length >= 3) {
-            // Fórmula de Luminosidade (WCAG): (0.299*R + 0.587*G + 0.114*B)
-            const brightness = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]);
+            const r = parseInt(rgb[0]);
+            const g = parseInt(rgb[1]);
+            const b = parseInt(rgb[2]);
             
-            // Se o brilho for menor que 120 (numa escala de 0 a 255), é Dark Mode Forçado
-            if (brightness < 120) {
+            // Cálculo de brilho
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            
+            // DEBUG: Se você abrir o console do navegador, verá esses números
+            console.log("Samsung Browser Detectado. Brilho atual:", brightness);
+
+            // O seu azul original (#6F8FAF) tem brilho aproximado de 136.
+            // Se o brilho cair para menos de 80, ele com certeza inverteu as cores.
+            if (brightness < 80) {
                 isActuallyDark = true;
             }
         }
 
-        // Retorna TRUE apenas se for Samsung E (estiver escuro no sistema OU forçado pelo navegador)
-        return isSamsung && (prefersDark || isActuallyDark);
+        // Importante: No Samsung, o 'prefers-color-scheme' pode vir do sistema Android,
+        // mas o que estraga seu site é o "Dark Web Pages" (inversão forçada).
+        // Por isso, vamos focar na inversão real da cor (isActuallyDark).
+        return isSamsung && isActuallyDark;
     }
 
-    // 3. APLICAÇÃO DA LÓGICA NO BANNER
+    // 3. APLICAÇÃO
     if (shouldShowWarning()) {
         if (banner) {
             banner.style.display = "block";
-            
             const btn = banner.querySelector("button");
             if (btn) {
                 btn.onclick = function (e) {
                     e.preventDefault();
-                    // Constrói o link para abrir direto no Chrome do Android
                     const urlSemProtocolo = window.location.href.replace(/^https?:\/\//, "");
-                    const chromeIntent = "intent://" + urlSemProtocolo + "#Intent;scheme=https;package=com.android.chrome;end";
-                    window.location.href = chromeIntent;
+                    window.location.href = "intent://" + urlSemProtocolo + "#Intent;scheme=https;package=com.android.chrome;end";
                 };
             }
         }
     } else {
-        // Se não for Samsung ou se estiver no Modo Claro, garante que o aviso suma
-        if (banner) {
-            banner.style.display = "none";
-        }
+        if (banner) banner.style.display = "none";
     }
 });
 </script>
